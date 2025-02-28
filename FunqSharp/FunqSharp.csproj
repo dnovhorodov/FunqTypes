@@ -1,9 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>FunqSharp</AssemblyName>
+    <PackageId>FunqSharp</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Danyl Novhorodov</Authors>
+    <Company>Innovarix</Company>
+    <Product>FunqSharp</Product>    
+    <Description>FunqSharp is a lightweight functional programming library for C# featuring functional error handling.</Description>    
+    <PackageTags>FunctionalProgramming;CSharp;FSharp;Monads;ErrorHandling</PackageTags>
+    <PackageProjectUrl>https://github.com/dnovhorodov/FunqSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dnovhorodov/FunqSharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIconUrl>https://raw.githubusercontent.com/dnovhorodov/FunqSharp/main/icon.png</PackageIconUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../icon.png" Pack="true" PackagePath=""/>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
 </Project>

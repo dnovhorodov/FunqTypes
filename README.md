@@ -1,4 +1,5 @@
-# Funq♯
+# <img src="icon.png" alt="FunqSharp Logo" width="45"/> Funq♯
+
 *A lightweight functional programming library for C#.*
 
 ---

@@ -47,9 +47,12 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+          
+      - name: 🔧 Extract version from Git tag
+        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
 
-      - name: 🔧 Create NuGet package
-        run: dotnet pack --configuration Release --no-build --output nupkg
+      - name: 🏗️ Pack NuGet package with extracted version
+        run: dotnet pack --configuration Release --no-build -p:Version=${{ env.VERSION }} --output nupkg
 
       - name: 🚀 Publish to NuGet.org
         run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
