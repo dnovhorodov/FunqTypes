@@ -7,7 +7,7 @@
 ## 🎯 **What is FunqSharp?**
 **FunqSharp** is a **functional programming library for .NET** that brings **functional error handling and composition** to C# applications. It provides:
 - ✅ A **lightweight `Result<T>` type** for functional error handling
-- 🔥 **Primary API:** `Yeah()`, `Nope()`, and `IsYeah` → Short, fun, and easy to read
+- 🔥 **Primary API:** `Yeah()`, `Nope()`, and `IsNeat` → Short, fun, and easy to read
 - ✅ **Alternative API:** `Ok()`, `Fail()`, and `IsSuccess` → For devs who prefer formal names
 - ✅ **Monadic (`Bind`, `Map`)** and **Applicative (`Combine`)** styles
 - ✅ **Asynchronous (`BindAsync`, `MapAsync`)** support

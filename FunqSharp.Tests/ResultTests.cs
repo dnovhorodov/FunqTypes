@@ -59,7 +59,7 @@ public class ResultTests
     {
         var result = Yeah(42);
 
-        Assert.True(result.IsNeat, "IsYeah should return true for a successful result.");
+        Assert.True(result.IsNeat, "IsNeat should return true for a successful result.");
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class ResultTests
     {
         var result = Nope(new FunqError("NOPE", "Not today!"));
 
-        Assert.False(result.IsNeat, "IsYeah should return false for a failure result.");
+        Assert.False(result.IsNeat, "IsNeat should return false for a failure result.");
     }
 
     [Fact]
