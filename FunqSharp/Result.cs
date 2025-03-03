@@ -24,7 +24,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="value">The value of the successful operation.</param>
     /// <returns>A successful <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Yep(T value) => Ok(value);
+    public static Result<T, E> Yeah(T value) => Ok(value);
 
     /// <summary>
     /// Creates a failed result with the provided error.
@@ -41,9 +41,9 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     public static Result<T, E> Nope(params E[] errors) => Fail(errors);
 
     /// <summary>
-    /// Yo, did this succeed?
+    /// Yeah, did this succeed?
     /// </summary>
-    public bool IsYo => IsSuccess;
+    public bool IsNeat => IsSuccess;
 
     /// <summary>
     /// Transforms the value of a successful result using the provided function.

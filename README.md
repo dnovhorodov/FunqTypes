@@ -7,7 +7,7 @@
 ## 🎯 **What is FunqSharp?**
 **FunqSharp** is a **functional programming library for .NET** that brings **functional error handling and composition** to C# applications. It provides:
 - ✅ A **lightweight `Result<T>` type** for functional error handling
-- 🔥 **Primary API:** `Yep()`, `Nope()`, and `IsYo` → Short, fun, and easy to read
+- 🔥 **Primary API:** `Yeah()`, `Nope()`, and `IsYeah` → Short, fun, and easy to read
 - ✅ **Alternative API:** `Ok()`, `Fail()`, and `IsSuccess` → For devs who prefer formal names
 - ✅ **Monadic (`Bind`, `Map`)** and **Applicative (`Combine`)** styles
 - ✅ **Asynchronous (`BindAsync`, `MapAsync`)** support
@@ -29,18 +29,18 @@ dotnet add package FunqSharp
 
 ### ✅ Basic Success & Failure
 ```csharp
-public record ValidationError(string Code, string Message);
+public record FunqError(string Code, string Message);
 
-var success = Result<int, ValidationError>.Yep(42);
-var failure = Result<int, ValidationError>.Nope(new ValidationError("INVALID", "Invalid input"));
+var success = Result<int, FunqError>.Yeah(42);
+var failure = Result<int, FunqError>.Nope(new FunqError("INVALID", "Invalid input"));
 
-Console.WriteLine(success.IsYo); // True
-Console.WriteLine(failure.IsYo); // False
+Console.WriteLine(success.IsNeat); // True
+Console.WriteLine(failure.IsNeat); // False
 ```
 
 ### 🔄 Monadic Composition (Fail-Fast Approach)
 ```csharp
-public static Result<User, ValidationError> CreateUser(string username, string email, string password)
+public static Result<User, FunqError> CreateUser(string username, string email, string password)
 {
     return ValidateUsername(username)
         .Bind(_ => ValidateEmail(email))
@@ -51,23 +51,23 @@ public static Result<User, ValidationError> CreateUser(string username, string e
 
 ### 📌 Applicative Validation (Accumulate Errors)
 ```csharp
-public static Result<User, ValidationError> CreateUserAggregated(string username, string email, string password)
+public static Result<User, FunqError> CreateUserAggregated(string username, string email, string password)
 {
     var usernameResult = ValidateUsername(username);
     var emailResult = ValidateEmail(email);
     var passwordResult = ValidatePassword(password);
 
-    var validationResult = Result<string, ValidationError>.Combine(usernameResult, emailResult, passwordResult);
+    var validationResult = Result<string, FunqError>.Combine(usernameResult, emailResult, passwordResult);
 
     return validationResult.IsSuccess
-        ? Result<User, ValidationError>.Yep(new User(username, email, password))
-        : Result<User, ValidationError>.Nope(validationResult.Errors.ToArray());
+        ? Result<User, FunqError>.Yeah(new User(username, email, password))
+        : Result<User, FunqError>.Nope(validationResult.Errors.ToArray());
 }
 ```
 
 ### ⚡ Asynchronous Support
 ```csharp
-public async Task<Result<User, ValidationError>> CreateUserAsync(string username, string email, string password)
+public async Task<Result<User, FunqError>> CreateUserAsync(string username, string email, string password)
 {
     return await ValidateUsernameAsync(username)
         .BindAsync(ValidateEmailAsync)
@@ -91,7 +91,7 @@ Console.WriteLine(message);
 ## API Overview
 | Method                                                              | Description                                                   |
 |---------------------------------------------------------------------|---------------------------------------------------------------|
-| `Result<T, E>.Yep(value)`                                           | Creates a successful result -                                 |
+| `Result<T, E>.Yeah(value)`                                           | Creates a successful result -                                 |
 | `Result<T, E>.Nope(errors...)`                                      | Creates a failed result with one or more<br/> errors          |
 | `.Bind(func)`                                                       | Chains operations, stopping on first failure                  |
 | `.Map(func)`                                                        | Transforms a success value                                    |
@@ -115,7 +115,7 @@ Console.WriteLine(message);
 ```csharp
 public static Result<int, string> ParseNumber(string input) =>
     int.TryParse(input, out int number)
-        ? Result<int>.Yep(number)
+        ? Result<int>.Yeah(number)
         : Result<int>.Nope("Invalid number format.");
 
 var result = Result<string, string>.Ok("42")
@@ -133,7 +133,7 @@ Console.WriteLine(message); // Output: "Processed number: 84"
 
 ### 🔹 Aggregating Multiple Validations Using Ensure
 ```csharp
-var result = Result<string, string>.Yep("Ad")
+var result = Result<string, string>.Yeah("Ad")
     .Ensure(name => name.Length >= 3, "Name must be at least 3 characters.")
     .Ensure(name => name.All(char.IsLetterOrDigit), "Name must contain only letters and digits.")
     .Ensure(name => !name.StartsWith("Admin"), "Name cannot start with 'Admin'.");
@@ -151,11 +151,11 @@ Console.WriteLine(message);
 ```csharp
 public static string ProcessUserInput(string username, string password)
 {
-    var result = Result<string, string>.Yep(username)
+    var result = Result<string, string>.Yeah(username)
         .Ensure(u => u.Length >= 5, "Username must be at least 5 characters.")
         .Ensure(u => !u.Contains(" "), "Username cannot contain spaces.")
         .Ensure(u => char.IsLetter(u[0]), "Username must start with a letter.")
-        .Bind(_ => Result<string>.Yep(password))
+        .Bind(_ => Result<string>.Yeah(password))
         .Ensure(p => p.Length >= 8, "Password must be at least 8 characters.")
         .Ensure(p => p.Any(char.IsDigit), "Password must contain at least one number.")
         .Ensure(p => p.Any(char.IsUpper), "Password must contain at least one uppercase letter.");

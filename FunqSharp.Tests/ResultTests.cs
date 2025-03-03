@@ -1,5 +1,3 @@
-using static FunqSharp.Result<int, FunqSharp.Tests.FunqError>;
-
 namespace FunqSharp.Tests;
 
 public record FunqError(string Code, string Message);
@@ -31,16 +29,16 @@ public class ResultTests
     }
 
     [Fact]
-    public void Yep_ShouldBehaveExactlyLike_Ok()
+    public void Yeah_ShouldBehaveExactlyLike_Ok()
     {
         const string Value = "FunqSharp Rocks!";
 
-        var yepResult = Result<string, FunqError>.Yep(Value);
+        var yeahResult = Result<string, FunqError>.Yeah(Value);
         var okResult = Result<string, FunqError>.Ok(Value);
 
-        Assert.True(yepResult.IsSuccess, "Yep should be successful.");
+        Assert.True(yeahResult.IsSuccess, "Yeah should be successful.");
         Assert.True(okResult.IsSuccess, "Success should be successful.");
-        Assert.Equivalent(okResult, yepResult);
+        Assert.Equivalent(okResult, yeahResult);
     }
 
     [Fact]
@@ -57,29 +55,29 @@ public class ResultTests
     }
     
     [Fact]
-    public void IsYo_ShouldBeTrueFor_Yep()
+    public void IsNeat_ShouldBeTrueFor_Yeah()
     {
-        var result = Yep(42);
+        var result = Yeah(42);
 
-        Assert.True(result.IsYo, "IsYo should return true for a successful result.");
+        Assert.True(result.IsNeat, "IsYeah should return true for a successful result.");
     }
 
     [Fact]
-    public void IsYo_ShouldBeFalseFor_Nope()
+    public void IsNeat_ShouldBeFalseFor_Nope()
     {
         var result = Nope(new FunqError("NOPE", "Not today!"));
 
-        Assert.False(result.IsYo, "IsYo should return false for a failure result.");
+        Assert.False(result.IsNeat, "IsYeah should return false for a failure result.");
     }
 
     [Fact]
-    public void IsYo_ShouldBeAliasFor_IsSuccess()
+    public void IsNeat_ShouldBeAliasFor_IsSuccess()
     {
-        var yepResult = Yep(100);
+        var yeahResult = Yeah(100);
         var nopeResult = Nope(new FunqError("FAIL", "Nope'd"));
 
-        Assert.Equal(yepResult.IsSuccess, yepResult.IsYo);
-        Assert.Equal(nopeResult.IsSuccess, nopeResult.IsYo);
+        Assert.Equal(yeahResult.IsSuccess, yeahResult.IsNeat);
+        Assert.Equal(nopeResult.IsSuccess, nopeResult.IsNeat);
     }
 
     #endregion
@@ -278,7 +276,7 @@ public class ResultTests
     [Fact]
     public void Ok_ShouldNotMutate()
     {
-        var initial = Yep(99);
+        var initial = Yeah(99);
 
         var mutated = initial with { Value = 100 };
 
