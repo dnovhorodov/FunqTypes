@@ -89,16 +89,17 @@ Console.WriteLine(message);
 ```
 
 ## API Overview
-| Method                                                              | Description                                                   |
-|---------------------------------------------------------------------|---------------------------------------------------------------|
-| `Result<T, E>.Yeah(value)`                                           | Creates a successful result -                                 |
-| `Result<T, E>.Nope(errors...)`                                      | Creates a failed result with one or more<br/> errors          |
-| `.Bind(func)`                                                       | Chains operations, stopping on first failure                  |
-| `.Map(func)`                                                        | Transforms a success value                                    |
-| `.Ensure(predicate, error)`                                         | Validates a success value, failing if predicate<br/> is false |
-| `.Combine(results...)`                                              | Combines multiple results, accumulating<br/> errors           |
-| `.Match(onSuccess, onFailure)`                                      | Pattern matches on success or failure                         |
-| `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)` | Asynchronous versions of Bind, Map, and Ensure                |
+| Method                                                                   | Description                                                   |
+|--------------------------------------------------------------------------|---------------------------------------------------------------|
+| `Result<T, E>.Yeah(value)`                                               | Creates a successful result -                                 |
+| `Result<T, E>.Nope(errors...)`                                           | Creates a failed result with one or more<br/> errors          |
+| `.Bind(func)`                                                            | Chains operations, stopping on first failure                  |
+| `.Map(func)`                                                             | Transforms a success value                                    |
+| `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate<br/> is false |
+| `.Combine(results...)`                                                   | Combines multiple results, accumulating<br/> errors           |
+| `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                         |
+| `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure                |
+| `.GetValueOrDefault(), .GetValueOrDefault(T), ..GetValueOrDefault(func)` | Returns success value or default                              |
 
 ### When to Use Each?
 | Use Case                                                                 | Best Method                    |
