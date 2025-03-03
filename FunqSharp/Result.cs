@@ -44,6 +44,24 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// Yeah, did this succeed?
     /// </summary>
     public bool IsNeat => IsSuccess;
+    
+    /// <summary>
+    /// Returns the value if the result is a success; otherwise, returns the default value of <see cref="T"/>
+    /// </summary>
+    /// <returns>An instance of <see cref="T"/></returns>
+    public T GetValueOrDefault() => IsSuccess ? Value : default!;
+    
+    /// <summary>
+    /// Returns the value if the result is a success; otherwise, returns the specified default value
+    /// </summary>
+    /// <returns>Default value</returns>
+    public T GetValueOrDefault(T defaultValue) => IsSuccess ? Value : defaultValue;
+    
+    /// <summary>
+    /// Returns the value if the result is a success; otherwise, returns a value provided by a factory function
+    /// </summary>
+    /// <returns>Default value</returns>
+    public T GetValueOrDefault(Func<T> defaultValueFactory) => IsSuccess ? Value : defaultValueFactory();
 
     /// <summary>
     /// Transforms the value of a successful result using the provided function.

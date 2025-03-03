@@ -53,7 +53,7 @@ public class ResultTests
         Assert.False(failureResult.IsSuccess, "Failure should be a failure.");
         Assert.Equivalent(failureResult, nopeResult);
     }
-    
+
     [Fact]
     public void IsNeat_ShouldBeTrueFor_Yeah()
     {
@@ -78,6 +78,76 @@ public class ResultTests
 
         Assert.Equal(yeahResult.IsSuccess, yeahResult.IsNeat);
         Assert.Equal(nopeResult.IsSuccess, nopeResult.IsNeat);
+    }
+    
+    #endregion
+
+    #region GetDefaultValue tests
+    
+    [Fact]
+    public void GetValueOrDefault_ShouldReturnSuccessValue_WhenResultIsSuccess()
+    {
+        var result = Result<int, string>.Ok(42);
+
+        var value = result.GetValueOrDefault();
+
+        Assert.Equal(42, value);
+    }
+
+    [Fact]
+    public void GetValueOrDefault_ShouldReturnDefaultValue_WhenResultIsFailure()
+    {
+        var result = Result<int, string>.Fail("Error!");
+
+        var value = result.GetValueOrDefault();
+
+        Assert.Equal(0, value);
+    }
+
+    [Fact]
+    public void GetValueOrDefault_ShouldReturnProvidedDefaultValue_WhenResultIsFailure()
+    {
+        var result = Result<string, string>.Fail("Error!");
+
+        var value = result.GetValueOrDefault("Fallback Value");
+
+        Assert.Equal("Fallback Value", value);
+    }
+
+    [Fact]
+    public void GetValueOrDefault_ShouldReturnSuccessValue_WhenResultIsSuccess_AndCustomDefaultIsProvided()
+    {
+        var result = Result<string, string>.Ok("Success!");
+
+        var value = result.GetValueOrDefault("Fallback Value");
+
+        Assert.Equal("Success!", value);
+    }
+
+    [Fact]
+    public void GetValueOrDefault_ShouldReturnFactoryValue_WhenResultIsFailure()
+    {
+        var result = Result<DateTime, string>.Nope("Error!");
+
+        var value = result.GetValueOrDefault(() => new DateTime(2024, 1, 1));
+
+        Assert.Equal(new DateTime(2024, 1, 1), value);
+    }
+
+    [Fact]
+    public void GetValueOrDefault_ShouldNotCallFactory_WhenResultIsSuccess()
+    {
+        var result = Result<int, string>.Ok(100);
+        var factoryCalled = false;
+
+        var value = result.GetValueOrDefault(() =>
+        {
+            factoryCalled = true;
+            return -1;
+        });
+
+        Assert.Equal(100, value);
+        Assert.False(factoryCalled, "Factory should not be called for success results.");
     }
 
     #endregion
