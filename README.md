@@ -6,16 +6,13 @@
 
 ## 🎯 **What is FunqSharp?**
 **FunqSharp** is a **functional programming library for .NET** that brings **functional error handling and composition** to C# applications. It provides:
-- ✅ A **lightweight `Result<T>` type** for functional error handling
-- 🔥 **Primary API:** `Yeah()`, `Nope()`, and `IsNeat` → Short, fun, and easy to read
-- ✅ **Alternative API:** `Ok()`, `Fail()`, and `IsSuccess` → For devs who prefer formal names
-- ✅ **Monadic (`Bind`, `Map`)** and **Applicative (`Combine`)** styles
-- ✅ **Asynchronous (`BindAsync`, `MapAsync`)** support
-- ✅ **Pattern matching with `Match`**
-- ✅ **Immutability and safety using `record struct`**
+- ✅ **`Result<T>` type** - Monadic error handling with `Yeah/Nah` aliases
+- ✅ **`Option<T>` type** - Null-safe optional values with `Yeah/Nah` aliases
+- ✅ **LINQ & FP Support** - Fluent mappings, binding, filtering
+- ✅ **Zero Overhead** - Efficient `readonly record struct` implementation
 
 > **Why?**  
-> Writing clean, composable, and bug-resistant code in C# shouldn't be painful. **FunqSharp** helps by eliminating exceptions as a control flow mechanism and replacing them with functional, **explicit** error handling.
+> Writing clean, composable, and bug-resistant code in C# shouldn't be painful. **FunqSharp** helps by eliminating exceptions as a control flow mechanism and replacing them with functional, **explicit** error handling and null-safe optional values to avoid Null Reference Exceptions.
 
 ---
 
@@ -25,14 +22,125 @@
 dotnet add package FunqSharp
 ```
 
-## 🚀 **Getting Started**
+## 🚀 **Option<T> - Null-Safe Optional Values**
+Option<T> represents an optional value that is either:
+* **Some(T)** – Contains a value ✅
+* **None** – Represents the absence of a value ❌
+
+### ✅ Create an Option
+```csharp
+var someValue = Option<int>.Some(42);
+var noneValue = Option<int>.None();
+```
+### Or use the Funq-style aliases 🤘:
+```csharp
+var funky = Option<int>.Yeah(42); // Same as Some(42)
+var empty = Option<int>.Nah();   // Same as None()
+```
+
+### 🔄 Implicit Conversions
+```csharp
+Option<string> implicitSome = "FunqSharp"; // Automatically converts to Some("FunqSharp")
+Option<string> implicitNone = null;        // Automatically converts to None()
+```
+**✔ No need to manually check for null anymore!**
+
+### 🎯 Accessing Values
+```csharp
+var option = Option<int>.Yeah(10);
+
+Console.WriteLine(option.GetValueOrDefault());        // Output: 10
+Console.WriteLine(option.GetValueOrDefault(100));    // Output: 10
+Console.WriteLine(Option<int>.Nah().GetValueOrDefault(100)); // Output: 100
+```
+
+**✔ Supports custom defaults and lazy evaluation:**
+```csharp
+var fallback = Option<int>.Nah().GetValueOrDefault(() => ComputeExpensiveValue());
+```
+
+### 🛠️ Functional Methods
+
+**✅ Map – Transform an Option**
+```csharp
+var option = Option<int>.Yeah(5);
+var doubled = option.Map(x => x * 2);
+
+Console.WriteLine(doubled.GetValueOrDefault()); // Output: 10
+```
+
+**✔ If None, mapping does nothing:**
+```csharp
+Option<int>.Nah().Map(x => x * 2); // Stays None
+```
+
+**✅ Bind – Flatten Nested Options**
+```csharp
+Option<int> Parse(string input) =>
+    int.TryParse(input, out var num) ? Option<int>.Yeah(num) : Option<int>.Nah();
+
+var result = Option<string>.Yeah("42").Bind(Parse);
+
+Console.WriteLine(result.GetValueOrDefault()); // Output: 42
+```
+
+### 🔍 Filtering with Where
+```csharp
+var option = Option<int>.Yeah(10);
+var filtered = option.Where(x => x > 5);  // Stays Some(10)
+var noneFiltered = option.Where(x => x > 15); // Becomes None()
+
+Console.WriteLine(filtered.IsSome); // True
+Console.WriteLine(noneFiltered.IsNone); // True
+```
+
+### 🖥️ Executing Side Effects with IfYeah and IfNone
+```csharp
+var option = Option<string>.Yeah("FunqSharp Rocks!");
+
+option.IfYeah(Console.WriteLine); // Output: "FunqSharp Rocks!"
+option.IfNah(() => Console.WriteLine("No value found.")); // Not called
+```
+
+**✔ Works even if the option is empty:**
+```csharp
+Option<string>.Nah().IfNah(() => Console.WriteLine("No value found.")); // Output: "No value found."
+```
+
+### 📦 Convert Option<T> to Result<T, E>
+```csharp
+var optionalData = Option<int>.Nah();
+var result = optionalData.ToResult("Value not found");
+
+Console.WriteLine(result.IsNeat); // False
+Console.WriteLine(result.Errors.First()); // Output: "Value not found"
+```
+
+### 🔁 ToEnumerable() for LINQ Support
+```csharp
+var option = Option<int>.Yeah(5);
+var sum = option.ToEnumerable()
+                .Select(x => x * 2)
+                .Sum();
+
+Console.WriteLine(sum); // Output: 10
+```
+
+**✔ Empty Option<T> results in an empty sequence:**
+```csharp
+var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
+```
+
+---
+
+## 🚀 **Result<T, E> - Handle Success or Error**
 
 ### ✅ Basic Success & Failure
 ```csharp
 public record FunqError(string Code, string Message);
 
 var success = Result<int, FunqError>.Yeah(42);
-var failure = Result<int, FunqError>.Nope(new FunqError("INVALID", "Invalid input"));
+var failure = Result<int, FunqError>.Nah(new FunqError("INVALID", "Invalid input"));
 
 Console.WriteLine(success.IsNeat); // True
 Console.WriteLine(failure.IsNeat); // False
@@ -61,7 +169,7 @@ public static Result<User, FunqError> CreateUserAggregated(string username, stri
 
     return validationResult.IsSuccess
         ? Result<User, FunqError>.Yeah(new User(username, email, password))
-        : Result<User, FunqError>.Nope(validationResult.Errors.ToArray());
+        : Result<User, FunqError>.Nah(validationResult.Errors.ToArray());
 }
 ```
 
@@ -88,11 +196,11 @@ var message = result.Match(
 Console.WriteLine(message);
 ```
 
-## API Overview
+### 🚀 Result<T, E> API Summary
 | Method                                                                   | Description                                                   |
 |--------------------------------------------------------------------------|---------------------------------------------------------------|
 | `Result<T, E>.Yeah(value)`                                               | Creates a successful result -                                 |
-| `Result<T, E>.Nope(errors...)`                                           | Creates a failed result with one or more<br/> errors          |
+| `Result<T, E>.Nah(errors...)`                                           | Creates a failed result with one or more<br/> errors          |
 | `.Bind(func)`                                                            | Chains operations, stopping on first failure                  |
 | `.Map(func)`                                                             | Transforms a success value                                    |
 | `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate<br/> is false |
@@ -117,7 +225,7 @@ Console.WriteLine(message);
 public static Result<int, string> ParseNumber(string input) =>
     int.TryParse(input, out int number)
         ? Result<int>.Yeah(number)
-        : Result<int>.Nope("Invalid number format.");
+        : Result<int>.Nah("Invalid number format.");
 
 var result = Result<string, string>.Ok("42")
     .Bind(ParseNumber)
@@ -163,14 +271,14 @@ public static string ProcessUserInput(string username, string password)
 
     return result.Match(
         success => "User successfully created ✅",
-        errors => $"User creation failed ❌: {string.Join("; ", errors)}"
+        errors => $"User creation failed: {string.Join("; ", errors)}"
     );
 }
 
 // Test cases:
-Console.WriteLine(ProcessUserInput("User", "Password1")); // ❌ Username too short
-Console.WriteLine(ProcessUserInput("ValidUser", "pass")); // ❌ Password too short
-Console.WriteLine(ProcessUserInput("ValidUser", "ValidPass1")); // ✅ User successfully created
+Console.WriteLine(ProcessUserInput("User", "Password1")); // Username too short
+Console.WriteLine(ProcessUserInput("ValidUser", "pass")); // Password too short
+Console.WriteLine(ProcessUserInput("ValidUser", "ValidPass1")); // User successfully created
 ```
 
 🔥 Star the repo if you find this useful! ⭐

@@ -38,7 +38,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="errors">One or more error explaining the failure.</param>
     /// <returns>A failed <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Nope(params E[] errors) => Fail(errors);
+    public static Result<T, E> Nah(params E[] errors) => Fail(errors);
 
     /// <summary>
     /// Yeah, did this succeed?

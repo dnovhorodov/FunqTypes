@@ -42,30 +42,30 @@ public class ResultTests
     }
 
     [Fact]
-    public void Nope_ShouldBehaveExactlyLike_Fail()
+    public void Nah_ShouldBehaveExactlyLike_Fail()
     {
         var error = new FunqError("FAIL", "Test-driven sadness");
 
-        var nopeResult = Nope(error);
+        var nahResult = Nah(error);
         var failureResult = Fail(error);
 
-        Assert.False(nopeResult.IsSuccess, "Nope should be a failure.");
+        Assert.False(nahResult.IsSuccess, "Nah should be a failure.");
         Assert.False(failureResult.IsSuccess, "Failure should be a failure.");
-        Assert.Equivalent(failureResult, nopeResult);
+        Assert.Equivalent(failureResult, nahResult);
     }
 
     [Fact]
     public void IsNeat_ShouldBeTrueFor_Yeah()
     {
-        var result = Yeah(42);
+        var result = Result<int, FunqError>.Yeah(42);
 
         Assert.True(result.IsNeat, "IsNeat should return true for a successful result.");
     }
 
     [Fact]
-    public void IsNeat_ShouldBeFalseFor_Nope()
+    public void IsNeat_ShouldBeFalseFor_Nah()
     {
-        var result = Nope(new FunqError("NOPE", "Not today!"));
+        var result = Nah(new FunqError("NAH", "Not today!"));
 
         Assert.False(result.IsNeat, "IsNeat should return false for a failure result.");
     }
@@ -73,11 +73,11 @@ public class ResultTests
     [Fact]
     public void IsNeat_ShouldBeAliasFor_IsSuccess()
     {
-        var yeahResult = Yeah(100);
-        var nopeResult = Nope(new FunqError("FAIL", "Nope'd"));
+        var yeahResult = Result<int, FunqError>.Yeah(100);
+        var nahResult = Nah(new FunqError("FAIL", "Nah'd"));
 
         Assert.Equal(yeahResult.IsSuccess, yeahResult.IsNeat);
-        Assert.Equal(nopeResult.IsSuccess, nopeResult.IsNeat);
+        Assert.Equal(nahResult.IsSuccess, nahResult.IsNeat);
     }
     
     #endregion
@@ -127,7 +127,7 @@ public class ResultTests
     [Fact]
     public void GetValueOrDefault_ShouldReturnFactoryValue_WhenResultIsFailure()
     {
-        var result = Result<DateTime, string>.Nope("Error!");
+        var result = Result<DateTime, string>.Nah("Error!");
 
         var value = result.GetValueOrDefault(() => new DateTime(2024, 1, 1));
 
@@ -346,7 +346,7 @@ public class ResultTests
     [Fact]
     public void Ok_ShouldNotMutate()
     {
-        var initial = Yeah(99);
+        var initial = Result<int, FunqError>.Yeah(99);
 
         var mutated = initial with { Value = 100 };
 
