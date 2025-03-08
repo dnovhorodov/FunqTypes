@@ -58,7 +58,7 @@ jobs:
         run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
 
       - name: 🏗️ Pack NuGet package with extracted version
-        run: dotnet pack --configuration Release --no-build -p:Version=${{ env.VERSION }} --output nupkg
+        run: dotnet pack --configuration Release -p:Version=${{ env.VERSION }} --output nupkg
 
       - name: 🚀 Publish to NuGet.org
         run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
