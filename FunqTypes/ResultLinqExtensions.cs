@@ -1,4 +1,4 @@
-namespace FunqSharp;
+namespace FunqTypes;
 
 public static class ResultLinqExtensions
 {

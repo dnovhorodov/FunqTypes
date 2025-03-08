@@ -1,4 +1,4 @@
-﻿namespace FunqSharp;
+﻿namespace FunqTypes;
 
 using System;
 using System.Collections.Generic;

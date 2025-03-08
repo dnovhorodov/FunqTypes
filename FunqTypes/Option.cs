@@ -1,4 +1,4 @@
-﻿namespace FunqSharp;
+﻿namespace FunqTypes;
 
 /// <summary>
 /// Represents an optional value which can be Some(T) or None.

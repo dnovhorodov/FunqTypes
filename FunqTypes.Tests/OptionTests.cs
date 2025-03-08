@@ -1,4 +1,4 @@
-﻿namespace FunqSharp.Tests;
+﻿namespace FunqTypes.Tests;
 
 public class OptionTests
 {
@@ -27,10 +27,10 @@ public class OptionTests
     [Fact]
     public void ImplicitConversionFromValue_ShouldCreateSome()
     {
-        Option<string> option = "FunqSharp";
+        Option<string> option = "FunqTypes";
 
         Assert.True(option.IsSome);
-        Assert.Equal("FunqSharp", option.GetValueOrDefault());
+        Assert.Equal("FunqTypes", option.GetValueOrDefault());
     }
 
     [Fact]

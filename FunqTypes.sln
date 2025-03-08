@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqSharp", "FunqSharp\FunqSharp.csproj", "{4A6B19F3-B9A2-40A6-8ED9-E552F49D9042}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes", "FunqTypes\FunqTypes.csproj", "{4A6B19F3-B9A2-40A6-8ED9-E552F49D9042}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqSharp.Tests", "FunqSharp.Tests\FunqSharp.Tests.csproj", "{38E3EFC0-13BB-4E05-8E73-D59A736112B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes.Tests", "FunqTypes.Tests\FunqTypes.Tests.csproj", "{38E3EFC0-13BB-4E05-8E73-D59A736112B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,6 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>FunqSharp.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FunqSharp\FunqSharp.csproj" />
+      <ProjectReference Include="..\FunqTypes\FunqTypes.csproj" />
     </ItemGroup>
 
 </Project>

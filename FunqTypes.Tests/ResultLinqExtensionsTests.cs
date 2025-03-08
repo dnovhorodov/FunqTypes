@@ -1,4 +1,4 @@
-namespace FunqSharp.Tests;
+namespace FunqTypes.Tests;
 
 public class ResultLinqExtensionsTests
 {

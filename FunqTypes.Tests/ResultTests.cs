@@ -1,4 +1,4 @@
-namespace FunqSharp.Tests;
+namespace FunqTypes.Tests;
 
 public record FunqError(string Code, string Message);
 
@@ -31,7 +31,7 @@ public class ResultTests
     [Fact]
     public void Yeah_ShouldBehaveExactlyLike_Ok()
     {
-        const string Value = "FunqSharp Rocks!";
+        const string Value = "FunqTypes Rocks!";
 
         var yeahResult = Result<string, FunqError>.Yeah(Value);
         var okResult = Result<string, FunqError>.Ok(Value);
