@@ -2,6 +2,11 @@
 
 *A lightweight functional types for C#.*
 
+[![Build](https://github.com/dnovhorodov/FunqTypes/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/dnovhorodov/FunqTypes/actions/workflows/build-and-publish.yml)
+[![NuGet](https://img.shields.io/nuget/v/FunqTypes.svg)](https://www.nuget.org/packages/FunqTypes/)
+[![Downloads](https://img.shields.io/nuget/dt/FunqTypes.svg)](https://www.nuget.org/packages/FunqTypes/)
+[![License](https://img.shields.io/github/license/dnovhorodov/FunqTypes.svg)](https://github.com/dnovhorodov/FunqTypes/blob/main/LICENSE)
+
 ---
 
 ## 🎯 **What is FunqTypes?**
