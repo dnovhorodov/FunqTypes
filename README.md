@@ -305,21 +305,23 @@ Console.WriteLine(failed.Errors.First()); // "Must be positive"
 ```
 
 ### 🚀 Result<T, E> API Summary
-| Method                                                                   | Description                                                   |
-|--------------------------------------------------------------------------|---------------------------------------------------------------|
-| `Result<T, E>.Yeah(value)`                                               | Creates a successful result -                                 |
-| `Result<T, E>.Nah(errors...)`                                            | Creates a failed result with one or more<br/> errors          |
-| `.Bind(func)`                                                            | Chains operations, stopping on first failure                  |
-| `.Map(func)`                                                             | Transforms a success value                                    |
-| `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate<br/> is false |
-| `.Combine(results...)`                                                   | Combines multiple results, accumulating<br/> errors           |
-| `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                         |
-| `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure                |
-| `.GetValueOrDefault(), .GetValueOrDefault(T), ..GetValueOrDefault(func)` | Returns success value or default                              |
-| `.Where(predicate, error)`                                               | Filters `Result<T, E>`, failing if predicate is false         |
-| `.Where(predicate)`                                                      | Filters without specifying an error (uses `default(E)`)       |
-| `.Select(predicate)`                                                     | Transforms `T → U` while keeping `Result<T, E>` structure     |
-| `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations                   |
+| Method                                                                   | Description                                               |
+|--------------------------------------------------------------------------|-----------------------------------------------------------|
+| `Result<T, E>.Ok(value)`                                                 | Creates a successful result                               |
+| `Result<T, E>.Fail(errors...)`                                           | Creates a failed result with one or more errors           |
+| `.Yeah(value)`                                                           | Alias for `.Ok(value)`                                    |
+| `.Nah(errors...)`                                                        | Alias for `Fail(errors...)`                               |
+| `.Bind(func)`                                                            | Chains operations, stopping on first failure              |
+| `.Map(func)`                                                             | Transforms a success value                                |
+| `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate is false  |
+| `.Combine(results...)`                                                   | Combines multiple results, accumulating errors            |
+| `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                     |
+| `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure            |
+| `.GetValueOrDefault(), .GetValueOrDefault(T), ..GetValueOrDefault(func)` | Returns success value or default                          |
+| `.Where(predicate, error)`                                               | Filters `Result<T, E>`, failing if predicate is false     |
+| `.Where(predicate)`                                                      | Filters without specifying an error (uses `default(E)`)   |
+| `.Select(predicate)`                                                     | Transforms `T → U` while keeping `Result<T, E>` structure |
+| `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations               |
 
 ### When to Use Each?
 | Use Case                                                                 | Best Method                    |
