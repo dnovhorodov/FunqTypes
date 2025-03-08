@@ -23,9 +23,9 @@ dotnet add package FunqSharp
 ```
 
 ## 🚀 **Option<T> - Null-Safe Optional Values**
-Option<T> represents an optional value that is either:
-* **Some(T)** – Contains a value ✅
-* **None** – Represents the absence of a value ❌
+`Option<T>` represents an optional value that is either:
+* `Some(T)` – Contains a value ✅
+* `None` – Represents the absence of a value ❌
 
 ### ✅ Create an Option
 ```csharp
@@ -131,9 +131,30 @@ Console.WriteLine(sum); // Output: 10
 var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
 ```
 
+### 🚀 Option<T> API Summary
+| Method                             | Description                                |
+|------------------------------------|--------------------------------------------|
+| `Option<T>.Some(value)`            | Creates an Option containing value         |
+| `Option<T>.None()`                 | Represents the absence of a value          |
+| `.Yeah(value)`                     | Alias for `Some(value)`                    |
+| `.Nah()`                           | Alias for `None() `                        |
+| `.GetValueOrDefault()`             | Returns the value or `default(T)`          |
+| `.GetValueOrDefault(fallback)`     | Returns the value or fallback              |
+| `.Map(func)`                       | Transforms `Option<T>` into `Option<U>`    |
+| `.Bind(func)`                      | Maps `Option<T>` to another `Option<U>`    |
+| `.Where(predicate)`                | Filters `Option<T>`                        |
+| `IfSome(action)`,`.IfYeah(action)` | Executes action if `Some`                  |
+| `IfNone(action)`,`.IfNah(action)`  | Executes action if `None`                  |
+| `ToResult(error)`                  | Converts `Option<T>` to `Result<T, E>`     |
+| `ToEnumerable()`                   | Converts `Option<T>` into `IEnumerable<T>` |
+
 ---
 
 ## 🚀 **Result<T, E> - Handle Success or Error**
+`Result<T, E>` represents returned value or an error:
+
+* `T` – Represents success value ✅
+* `E` – Represents error ❌
 
 ### ✅ Basic Success & Failure
 ```csharp
@@ -192,15 +213,102 @@ var message = result.Match(
     success => $"User created: {success.Name}",
     errors => $"Failed: {string.Join(", ", errors)}"
 );
-
 Console.WriteLine(message);
+```
+
+### 🔄 Filtering with Where
+**✅ Where(predicate, error)**
+
+Filters a successful `Result<T, E>` based on a predicate.
+
+* If predicate(value) is false, it transforms the success into a failure with the specified error.
+* If the Result was already a failure, it remains unchanged.
+
+```csharp
+var result = Result<int, string>.Yeah(10)
+    .Where(x => x > 5, "Value must be greater than 5");
+
+Console.WriteLine(result.IsNeat); // True
+
+var failed = Result<int, string>.Yeah(3)
+    .Where(x => x > 5, "Value must be greater than 5");
+
+Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.Errors.First()); // "Value must be greater than 5"
+```
+**✔ If Result is already a failure, Where does nothing:**
+```csharp
+var alreadyFailed = Result<int, string>.Nah("Initial failure")
+    .Where(x => x > 5, "New failure");
+
+Console.WriteLine(alreadyFailed.Errors.First()); // "Initial failure"
+```
+
+**✅ Where(predicate)**
+
+Same as above, but uses a default error `(default(E))` if predicate(value) fails.
+```csharp
+var filtered = Result<int, string>.Yeah(10)
+    .Where(x => x > 15); // Becomes failure (default error)
+
+Console.WriteLine(filtered.IsYeah); // False
+Console.WriteLine(filtered.Errors.Count); // 1
+```
+
+### 🔄 Transforming with Select
+
+**✅ Select(selector)**
+Applies a function to a successful result, transforming `T` into `U`.
+```csharp
+var result = Result<int, string>.Yeah(5)
+    .Select(x => x * 2);
+
+Console.WriteLine(result.IsNeat); // True
+Console.WriteLine(result.Value); // 10
+```
+**✔ If the Result is already a failure, Select does nothing:**
+
+```chsarp
+var failed = Result<int, string>.Nah("Invalid number")
+    .Select(x => x * 2);
+
+Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.Errors.First()); // "Invalid number"
+```
+
+### 🔄 Composing with SelectMany
+**✅ SelectMany(binder)**
+
+Allows chaining operations where `T → Result<U, E>`.
+```csharp
+Result<int, string> Parse(string input) =>
+    int.TryParse(input, out var num) ? Result<int, string>.Yeah(num) : Result<int, string>.Nah("Invalid number");
+
+Result<int, string> EnsurePositive(int number) =>
+    number > 0 ? Result<int, string>.Yeah(number) : Result<int, string>.Nah("Must be positive");
+
+var result = Result<string, string>.Yeah("42")
+    .SelectMany(Parse)
+    .SelectMany(EnsurePositive);
+
+Console.WriteLine(result.IsNeat); // True
+Console.WriteLine(result.Value); // 42
+```
+**✔ Handles failure propagation automatically:**
+```csharp
+var failed = Result<string, string>.Yeah("-10")
+    .SelectMany(Parse)
+    .SelectMany(EnsurePositive);
+
+Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.Errors.First()); // "Must be positive"
 ```
 
 ### 🚀 Result<T, E> API Summary
 | Method                                                                   | Description                                                   |
 |--------------------------------------------------------------------------|---------------------------------------------------------------|
 | `Result<T, E>.Yeah(value)`                                               | Creates a successful result -                                 |
-| `Result<T, E>.Nah(errors...)`                                           | Creates a failed result with one or more<br/> errors          |
+| `Result<T, E>.Nah(errors...)`                                            | Creates a failed result with one or more<br/> errors          |
 | `.Bind(func)`                                                            | Chains operations, stopping on first failure                  |
 | `.Map(func)`                                                             | Transforms a success value                                    |
 | `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate<br/> is false |
@@ -208,6 +316,10 @@ Console.WriteLine(message);
 | `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                         |
 | `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure                |
 | `.GetValueOrDefault(), .GetValueOrDefault(T), ..GetValueOrDefault(func)` | Returns success value or default                              |
+| `.Where(predicate, error)`                                               | Filters `Result<T, E>`, failing if predicate is false         |
+| `.Where(predicate)`                                                      | Filters without specifying an error (uses `default(E)`)       |
+| `.Select(predicate)`                                                     | Transforms `T → U` while keeping `Result<T, E>` structure     |
+| `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations                   |
 
 ### When to Use Each?
 | Use Case                                                                 | Best Method                    |
