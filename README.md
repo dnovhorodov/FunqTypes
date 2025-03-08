@@ -1,18 +1,16 @@
 # <img src="icon.png" alt="FunqTypes Logo" width="45"/> FunqTypes
 
-*A lightweight functional types for C#.*
+*A lightweight funky functional types for C#.*
 
 [![Build](https://github.com/dnovhorodov/FunqTypes/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/dnovhorodov/FunqTypes/actions/workflows/build-and-publish.yml)
 [![NuGet](https://img.shields.io/nuget/v/FunqTypes.svg)](https://www.nuget.org/packages/FunqTypes/)
-[![Downloads](https://img.shields.io/nuget/dt/FunqTypes.svg)](https://www.nuget.org/packages/FunqTypes/)
-[![License](https://img.shields.io/github/license/dnovhorodov/FunqTypes.svg)](https://github.com/dnovhorodov/FunqTypes/blob/main/LICENSE)
 
 ---
 
 ## 🎯 **What is FunqTypes?**
 **FunqTypes** is a set of **functional types and helpers for .NET** that brings **null-safety, error handling and composition** to C# applications. It provides:
-- ✅ **`Result<T>` type** - Monadic error handling with `Yeah/Nah` aliases
-- ✅ **`Option<T>` type** - Null-safe optional values with `Yeah/Nah` aliases
+- ✅ **`Result<T>` type** - Monadic error handling with `Ok/Fail` or `Gotcha/Oops` alternative aliases
+- ✅ **`Option<T>` type** - Null-safe optional values with `Some/None` or `Yeah/Nah` alternative aliases
 - ✅ **LINQ & FP Support** - Fluent mappings, binding, filtering
 - ✅ **Zero Overhead** - Efficient `readonly record struct` implementation
 
@@ -165,11 +163,19 @@ var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
 ```csharp
 public record FunqError(string Code, string Message);
 
-var success = Result<int, FunqError>.Yeah(42);
-var failure = Result<int, FunqError>.Nah(new FunqError("INVALID", "Invalid input"));
+var success = Result<int, FunqError>.Ok(42);
+var failure = Result<int, FunqError>.Fail(new FunqError("INVALID", "Invalid input"));
 
-Console.WriteLine(success.IsNeat); // True
-Console.WriteLine(failure.IsNeat); // False
+Console.WriteLine(success.IsSuccess); // True
+Console.WriteLine(failure.IsSuccess); // False
+```
+### Or use the Funq-style aliases 🤘:
+```csharp
+var funkySuccess = Result<int, FunqError>.Gotcha(42); // Same as Some(42)
+var funkyFailure = Result<int, FunqError>.Oops();   // Same as None()
+
+Console.WriteLine(funkySuccess.IsGucci); // True
+Console.WriteLine(funkySuccess.IsGucci); // False
 ```
 
 ### 🔄 Monadic Composition (Fail-Fast Approach)
@@ -194,8 +200,8 @@ public static Result<User, FunqError> CreateUserAggregated(string username, stri
     var validationResult = Result<string, FunqError>.Combine(usernameResult, emailResult, passwordResult);
 
     return validationResult.IsSuccess
-        ? Result<User, FunqError>.Yeah(new User(username, email, password))
-        : Result<User, FunqError>.Nah(validationResult.Errors.ToArray());
+        ? Result<User, FunqError>.Gotcha(new User(username, email, password))
+        : Result<User, FunqError>.Oops(validationResult.Errors.ToArray());
 }
 ```
 
@@ -230,20 +236,20 @@ Filters a successful `Result<T, E>` based on a predicate.
 * If the Result was already a failure, it remains unchanged.
 
 ```csharp
-var result = Result<int, string>.Yeah(10)
+var result = Result<int, string>.Gotcha(10)
     .Where(x => x > 5, "Value must be greater than 5");
 
-Console.WriteLine(result.IsNeat); // True
+Console.WriteLine(result.IsGucci); // True
 
-var failed = Result<int, string>.Yeah(3)
+var failed = Result<int, string>.Gotcha(3)
     .Where(x => x > 5, "Value must be greater than 5");
 
-Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.IsGucci); // False
 Console.WriteLine(failed.Errors.First()); // "Value must be greater than 5"
 ```
 **✔ If Result is already a failure, Where does nothing:**
 ```csharp
-var alreadyFailed = Result<int, string>.Nah("Initial failure")
+var alreadyFailed = Result<int, string>.Oops("Initial failure")
     .Where(x => x > 5, "New failure");
 
 Console.WriteLine(alreadyFailed.Errors.First()); // "Initial failure"
@@ -253,10 +259,10 @@ Console.WriteLine(alreadyFailed.Errors.First()); // "Initial failure"
 
 Same as above, but uses a default error `(default(E))` if predicate(value) fails.
 ```csharp
-var filtered = Result<int, string>.Yeah(10)
+var filtered = Result<int, string>.Gotcha(10)
     .Where(x => x > 15); // Becomes failure (default error)
 
-Console.WriteLine(filtered.IsYeah); // False
+Console.WriteLine(filtered.IsGucci); // False
 Console.WriteLine(filtered.Errors.Count); // 1
 ```
 
@@ -265,19 +271,19 @@ Console.WriteLine(filtered.Errors.Count); // 1
 **✅ Select(selector)**
 Applies a function to a successful result, transforming `T` into `U`.
 ```csharp
-var result = Result<int, string>.Yeah(5)
+var result = Result<int, string>.Gotcha(5)
     .Select(x => x * 2);
 
-Console.WriteLine(result.IsNeat); // True
+Console.WriteLine(result.IsGucci); // True
 Console.WriteLine(result.Value); // 10
 ```
 **✔ If the Result is already a failure, Select does nothing:**
 
 ```chsarp
-var failed = Result<int, string>.Nah("Invalid number")
+var failed = Result<int, string>.Oops("Invalid number")
     .Select(x => x * 2);
 
-Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.IsGucci); // False
 Console.WriteLine(failed.Errors.First()); // "Invalid number"
 ```
 
@@ -287,25 +293,25 @@ Console.WriteLine(failed.Errors.First()); // "Invalid number"
 Allows chaining operations where `T → Result<U, E>`.
 ```csharp
 Result<int, string> Parse(string input) =>
-    int.TryParse(input, out var num) ? Result<int, string>.Yeah(num) : Result<int, string>.Nah("Invalid number");
+    int.TryParse(input, out var num) ? Result<int, string>.Gotcha(num) : Result<int, string>.Oops("Invalid number");
 
 Result<int, string> EnsurePositive(int number) =>
-    number > 0 ? Result<int, string>.Yeah(number) : Result<int, string>.Nah("Must be positive");
+    number > 0 ? Result<int, string>.Gotcha(number) : Result<int, string>.Oops("Must be positive");
 
-var result = Result<string, string>.Yeah("42")
+var result = Result<string, string>.Gotcha("42")
     .SelectMany(Parse)
     .SelectMany(EnsurePositive);
 
-Console.WriteLine(result.IsNeat); // True
+Console.WriteLine(result.IsGucci); // True
 Console.WriteLine(result.Value); // 42
 ```
 **✔ Handles failure propagation automatically:**
 ```csharp
-var failed = Result<string, string>.Yeah("-10")
+var failed = Result<string, string>.Gotcha("-10")
     .SelectMany(Parse)
     .SelectMany(EnsurePositive);
 
-Console.WriteLine(failed.IsNeat); // False
+Console.WriteLine(failed.IsGucci); // False
 Console.WriteLine(failed.Errors.First()); // "Must be positive"
 ```
 
@@ -314,8 +320,8 @@ Console.WriteLine(failed.Errors.First()); // "Must be positive"
 |--------------------------------------------------------------------------|-----------------------------------------------------------|
 | `Result<T, E>.Ok(value)`                                                 | Creates a successful result                               |
 | `Result<T, E>.Fail(errors...)`                                           | Creates a failed result with one or more errors           |
-| `.Yeah(value)`                                                           | Alias for `.Ok(value)`                                    |
-| `.Nah(errors...)`                                                        | Alias for `Fail(errors...)`                               |
+| `.Gotcha(value)`                                                         | Alias for `.Ok(value)`                                    |
+| `.Oops(errors...)`                                                       | Alias for `Fail(errors...)`                               |
 | `.Bind(func)`                                                            | Chains operations, stopping on first failure              |
 | `.Map(func)`                                                             | Transforms a success value                                |
 | `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate is false  |
@@ -329,13 +335,13 @@ Console.WriteLine(failed.Errors.First()); // "Must be positive"
 | `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations               |
 
 ### When to Use Each?
-| Use Case                                                                 | Best Method                    |
-|--------------------------------------------------------------------------|--------------------------------|
-| Validate a field and fail if invalid                                     | `Ensure(condition, error)`     | 
-| Transform a successful result                                            | `Map(func)`                    | 
-| Chain operations where the next step<br/>depends on the previous success | `Bind(func)`                   | 
-| Collect multiple validation errors                                       | `Ensure` multiple times        | 
-| Handle both success and failure explicitly                               | `Match(onSuccess, onFailure)`  | 
+| Use Case                                                             | Best Method                    |
+|----------------------------------------------------------------------|--------------------------------|
+| Validate a field and fail if invalid                                 | `Ensure(condition, error)`     | 
+| Transform a successful result                                        | `Map(func)`                    | 
+| Chain operations where the next step depends on the previous success | `Bind(func)`                   | 
+| Collect multiple validation errors                                   | `Ensure` multiple times        | 
+| Handle both success and failure explicitly                           | `Match(onSuccess, onFailure)`  | 
 
 ## More examples
 
@@ -343,10 +349,10 @@ Console.WriteLine(failed.Errors.First()); // "Must be positive"
 ```csharp
 public static Result<int, string> ParseNumber(string input) =>
     int.TryParse(input, out int number)
-        ? Result<int>.Yeah(number)
-        : Result<int>.Nah("Invalid number format.");
+        ? Result<int>.Gotcha(number)
+        : Result<int>.Oops("Invalid number format.");
 
-var result = Result<string, string>.Ok("42")
+var result = Result<string, string>.Gotcha("42")
     .Bind(ParseNumber)
     .Ensure(num => num > 0, "Number must be positive.")
     .Map(num => $"Processed number: {num * 2}");
@@ -361,7 +367,7 @@ Console.WriteLine(message); // Output: "Processed number: 84"
 
 ### 🔹 Aggregating Multiple Validations Using Ensure
 ```csharp
-var result = Result<string, string>.Yeah("Ad")
+var result = Result<string, string>.Gotcha("Ad")
     .Ensure(name => name.Length >= 3, "Name must be at least 3 characters.")
     .Ensure(name => name.All(char.IsLetterOrDigit), "Name must contain only letters and digits.")
     .Ensure(name => !name.StartsWith("Admin"), "Name cannot start with 'Admin'.");
@@ -379,11 +385,11 @@ Console.WriteLine(message);
 ```csharp
 public static string ProcessUserInput(string username, string password)
 {
-    var result = Result<string, string>.Yeah(username)
+    var result = Result<string, string>.Gotcha(username)
         .Ensure(u => u.Length >= 5, "Username must be at least 5 characters.")
         .Ensure(u => !u.Contains(" "), "Username cannot contain spaces.")
         .Ensure(u => char.IsLetter(u[0]), "Username must start with a letter.")
-        .Bind(_ => Result<string>.Yeah(password))
+        .Bind(_ => Result<string>.Gotcha(password))
         .Ensure(p => p.Length >= 8, "Password must be at least 8 characters.")
         .Ensure(p => p.Any(char.IsDigit), "Password must contain at least one number.")
         .Ensure(p => p.Any(char.IsUpper), "Password must contain at least one uppercase letter.");

@@ -29,55 +29,55 @@ public class ResultTests
     }
 
     [Fact]
-    public void Yeah_ShouldBehaveExactlyLike_Ok()
+    public void Gotcha_ShouldBehaveExactlyLike_Ok()
     {
         const string Value = "FunqTypes Rocks!";
 
-        var yeahResult = Result<string, FunqError>.Yeah(Value);
+        var gotchaResult = Result<string, FunqError>.Gotcha(Value);
         var okResult = Result<string, FunqError>.Ok(Value);
 
-        Assert.True(yeahResult.IsSuccess, "Yeah should be successful.");
+        Assert.True(gotchaResult.IsSuccess, "gotcha should be successful.");
         Assert.True(okResult.IsSuccess, "Success should be successful.");
-        Assert.Equivalent(okResult, yeahResult);
+        Assert.Equivalent(okResult, gotchaResult);
     }
 
     [Fact]
-    public void Nah_ShouldBehaveExactlyLike_Fail()
+    public void Oops_ShouldBehaveExactlyLike_Fail()
     {
         var error = new FunqError("FAIL", "Test-driven sadness");
 
-        var nahResult = Nah(error);
+        var oopsResult = Oops(error);
         var failureResult = Fail(error);
 
-        Assert.False(nahResult.IsSuccess, "Nah should be a failure.");
+        Assert.False(oopsResult.IsSuccess, "Oops should be a failure.");
         Assert.False(failureResult.IsSuccess, "Failure should be a failure.");
-        Assert.Equivalent(failureResult, nahResult);
+        Assert.Equivalent(failureResult, oopsResult);
     }
 
     [Fact]
-    public void IsNeat_ShouldBeTrueFor_Yeah()
+    public void IsGucci_ShouldBeTrueFor_Gotcha()
     {
-        var result = Result<int, FunqError>.Yeah(42);
+        var result = Result<int, FunqError>.Gotcha(42);
 
-        Assert.True(result.IsNeat, "IsNeat should return true for a successful result.");
+        Assert.True(result.IsGucci, "IsGucci should return true for a successful result.");
     }
 
     [Fact]
-    public void IsNeat_ShouldBeFalseFor_Nah()
+    public void IsGucci_ShouldBeFalseFor_Oops()
     {
-        var result = Nah(new FunqError("NAH", "Not today!"));
+        var result = Oops(new FunqError("Oops", "Not today!"));
 
-        Assert.False(result.IsNeat, "IsNeat should return false for a failure result.");
+        Assert.False(result.IsGucci, "IsGucci should return false for a failure result.");
     }
 
     [Fact]
-    public void IsNeat_ShouldBeAliasFor_IsSuccess()
+    public void IsGucci_ShouldBeAliasFor_IsSuccess()
     {
-        var yeahResult = Result<int, FunqError>.Yeah(100);
-        var nahResult = Nah(new FunqError("FAIL", "Nah'd"));
+        var gotchaResult = Result<int, FunqError>.Gotcha(100);
+        var oopsResult = Oops(new FunqError("FAIL", "Oops'd"));
 
-        Assert.Equal(yeahResult.IsSuccess, yeahResult.IsNeat);
-        Assert.Equal(nahResult.IsSuccess, nahResult.IsNeat);
+        Assert.Equal(gotchaResult.IsSuccess, gotchaResult.IsGucci);
+        Assert.Equal(oopsResult.IsSuccess, oopsResult.IsGucci);
     }
     
     #endregion
@@ -127,7 +127,7 @@ public class ResultTests
     [Fact]
     public void GetValueOrDefault_ShouldReturnFactoryValue_WhenResultIsFailure()
     {
-        var result = Result<DateTime, string>.Nah("Error!");
+        var result = Result<DateTime, string>.Oops("Error!");
 
         var value = result.GetValueOrDefault(() => new DateTime(2024, 1, 1));
 
@@ -346,7 +346,7 @@ public class ResultTests
     [Fact]
     public void Ok_ShouldNotMutate()
     {
-        var initial = Result<int, FunqError>.Yeah(99);
+        var initial = Result<int, FunqError>.Gotcha(99);
 
         var mutated = initial with { Value = 100 };
 

@@ -122,7 +122,7 @@ public readonly record struct Option<T>
     /// <param name="error">The error to use if None.</param>
     /// <returns>A <see cref="Result{T, E}"/> containing the value if Some, otherwise a failure with the provided error.</returns>
     public Result<T, E> ToResult<E>(E error) =>
-        IsSome ? Result<T, E>.Ok(_value!) : Result<T, E>.Nah(error);
+        IsSome ? Result<T, E>.Ok(_value!) : Result<T, E>.Oops(error);
     
     /// <summary>
     /// Converts the Option to an enumerable sequence.

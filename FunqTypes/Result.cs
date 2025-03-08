@@ -24,7 +24,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="value">The value of the successful operation.</param>
     /// <returns>A successful <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Yeah(T value) => Ok(value);
+    public static Result<T, E> Gotcha(T value) => Ok(value);
 
     /// <summary>
     /// Creates a failed result with the provided error.
@@ -38,12 +38,12 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="errors">One or more error explaining the failure.</param>
     /// <returns>A failed <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Nah(params E[] errors) => Fail(errors);
+    public static Result<T, E> Oops(params E[] errors) => Fail(errors);
 
     /// <summary>
-    /// Yeah, did this succeed?
+    /// Did this succeed?
     /// </summary>
-    public bool IsNeat => IsSuccess;
+    public bool IsGucci => IsSuccess;
     
     /// <summary>
     /// Returns the value if the result is a success; otherwise, returns the default value of <see cref="T"/>
