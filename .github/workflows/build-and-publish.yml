@@ -47,6 +47,9 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+
+      - name: 🔍 Restore dependencies
+        run: dotnet restore
           
       - name: 🔧 Extract version from Git tag
         run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
