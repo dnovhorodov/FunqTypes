@@ -1,25 +1,25 @@
-# <img src="icon.png" alt="FunqSharp Logo" width="45"/> Funq♯
+# <img src="icon.png" alt="FunqTypes Logo" width="45"/> FunqTypes
 
-*A lightweight functional programming library for C#.*
+*A lightweight functional types for C#.*
 
 ---
 
-## 🎯 **What is FunqSharp?**
-**FunqSharp** is a **functional programming library for .NET** that brings **functional error handling and composition** to C# applications. It provides:
+## 🎯 **What is FunqTypes?**
+**FunqTypes** is a set of **functional types and helpers for .NET** that brings **null-safety, error handling and composition** to C# applications. It provides:
 - ✅ **`Result<T>` type** - Monadic error handling with `Yeah/Nah` aliases
 - ✅ **`Option<T>` type** - Null-safe optional values with `Yeah/Nah` aliases
 - ✅ **LINQ & FP Support** - Fluent mappings, binding, filtering
 - ✅ **Zero Overhead** - Efficient `readonly record struct` implementation
 
 > **Why?**  
-> Writing clean, composable, and bug-resistant code in C# shouldn't be painful. **FunqSharp** helps by eliminating exceptions as a control flow mechanism and replacing them with functional, **explicit** error handling and null-safe optional values to avoid Null Reference Exceptions.
+> Writing clean, composable, and bug-resistant code in C# shouldn't be painful. **FunqTypes** helps by eliminating exceptions as a control flow mechanism and replacing them with functional, **explicit** error handling and null-safe optional values to avoid Null Reference Exceptions.
 
 ---
 
 ## 📦 **Installation**
 ### **.NET CLI**
 ```sh
-dotnet add package FunqSharp
+dotnet add package FunqTypes
 ```
 
 ## 🚀 **Option<T> - Null-Safe Optional Values**
@@ -40,7 +40,7 @@ var empty = Option<int>.Nah();   // Same as None()
 
 ### 🔄 Implicit Conversions
 ```csharp
-Option<string> implicitSome = "FunqSharp"; // Automatically converts to Some("FunqSharp")
+Option<string> implicitSome = "FunqTypes"; // Automatically converts to Some("FunqTypes")
 Option<string> implicitNone = null;        // Automatically converts to None()
 ```
 **✔ No need to manually check for null anymore!**
@@ -96,9 +96,9 @@ Console.WriteLine(noneFiltered.IsNone); // True
 
 ### 🖥️ Executing Side Effects with IfYeah and IfNone
 ```csharp
-var option = Option<string>.Yeah("FunqSharp Rocks!");
+var option = Option<string>.Yeah("FunqTypes Rocks!");
 
-option.IfYeah(Console.WriteLine); // Output: "FunqSharp Rocks!"
+option.IfYeah(Console.WriteLine); // Output: "FunqTypes Rocks!"
 option.IfNah(() => Console.WriteLine("No value found.")); // Not called
 ```
 

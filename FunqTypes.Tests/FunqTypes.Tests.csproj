@@ -7,7 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <RootNamespace>FunqSharp.Tests</RootNamespace>
+        <RootNamespace>FunqTypes.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
