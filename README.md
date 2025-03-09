@@ -1,4 +1,4 @@
-# <img src="icon.png" alt="FunqTypes Logo" width="45"/> FunqTypes
+# 𓆈 FunqTypes
 
 *A lightweight funky functional types for C#.*
 
