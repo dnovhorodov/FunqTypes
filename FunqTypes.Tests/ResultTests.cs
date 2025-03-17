@@ -295,6 +295,66 @@ public class ResultTests
     }
 
     #endregion
+    
+    #region Tap() (Sync)
+    
+    [Fact]
+    public void Tap_ShouldExecuteAction_WhenResultIsSuccess()
+    {
+        var result = Result<int, string>.Gotcha(42);
+        var capturedValue = 0;
+
+        result = result.Tap(value => capturedValue = value);
+
+        Assert.True(result.IsGucci);
+        Assert.Equal(42, result.Value);
+        Assert.Equal(42, capturedValue);
+    }
+
+    [Fact]
+    public void Tap_ShouldNotExecuteAction_WhenResultIsFailure()
+    {
+        var result = Result<int, string>.Oops("Error occurred");
+        var capturedValue = 0;
+
+        result = result.Tap(value => capturedValue = value);
+
+        Assert.False(result.IsGucci);
+        Assert.NotEmpty(result.Errors);
+        Assert.Equal(0, capturedValue);
+    }
+
+    #endregion
+    
+    #region TapError() (Sync)
+
+    [Fact]
+    public void TapError_ShouldExecuteAction_WhenResultIsFailure()
+    {
+        var result = Result<int, string>.Oops("Something went wrong");
+        List<string> capturedErrors = new();
+
+        result = result.TapError(errors => capturedErrors.AddRange(errors));
+
+        Assert.False(result.IsGucci);
+        Assert.Single(result.Errors);
+        Assert.Equal("Something went wrong", capturedErrors.First());
+    }
+
+    [Fact]
+    public void TapError_ShouldNotExecuteAction_WhenResultIsSuccess()
+    {
+        var result = Result<int, string>.Gotcha(42);
+        List<string> capturedErrors = new();
+
+        result = result.TapError(errors => capturedErrors.AddRange(errors));
+
+        Assert.True(result.IsGucci);
+        Assert.Equal(42, result.Value);
+        Assert.Empty(capturedErrors);
+    }
+
+    #endregion
 
     #region Async Tests
 
@@ -352,6 +412,41 @@ public class ResultTests
 
         Assert.NotEqual(initial, mutated);
     }
+    
+    [Fact]
+    public async Task TapAsync_ShouldExecuteAction_WhenResultIsSuccess()
+    {
+        var result = Task.FromResult(Result<int, string>.Gotcha(42));
+        int capturedValue = 0;
+
+        var finalResult = await result.TapAsync(async value =>
+        {
+            await Task.Delay(10);
+            capturedValue = value;
+        });
+
+        Assert.True(finalResult.IsGucci);
+        Assert.Equal(42, finalResult.Value);
+        Assert.Equal(42, capturedValue);
+    }
+
+    [Fact]
+    public async Task TapAsync_ShouldNotExecuteAction_WhenResultIsFailure()
+    {
+        var result = Task.FromResult(Result<int, string>.Oops("Error"));
+        int capturedValue = 0;
+
+        var finalResult = await result.TapAsync(async value =>
+        {
+            await Task.Delay(10);
+            capturedValue = value;
+        });
+
+        Assert.False(finalResult.IsGucci);
+        Assert.NotEmpty(finalResult.Errors);
+        Assert.Equal(0, capturedValue);
+    }
+
 
     #endregion
 }

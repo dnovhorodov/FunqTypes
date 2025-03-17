@@ -147,6 +147,34 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
             ? Fail(error)
             : this;
     }
+
+    /// <summary>
+    /// Executes an action on the successful value and returns the original result.
+    /// Useful for logging, debugging, or running side effects without modifying the result.
+    /// </summary>
+    /// <param name="action">Action on success value</param>
+    /// <returns>The same instance of <see cref="Result{T, E}"/></returns>
+    public Result<T, E> Tap(Action<T> action)
+    {
+        if(IsSuccess)
+            action(Value);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Executes an action on the error if the result is a failure.
+    /// Useful for logging, debugging, or running side effects without modifying the result.
+    /// </summary>
+    /// <param name="action">Action on the list of errors</param>
+    /// <returns>The same instance of <see cref="Result{T, E}"/></returns>
+    public Result<T, E> TapError(Action<List<E>> action)
+    {
+        if (!IsSuccess)
+            action(Errors);
+
+        return this;
+    }
     
     /// <summary>
     /// Implicitly converts a value into a successful result.
