@@ -315,6 +315,17 @@ Console.WriteLine(failed.IsGucci); // False
 Console.WriteLine(failed.Errors.First()); // "Must be positive"
 ```
 
+### 🕵🏻‍♀️ Using Tap() for logging and debugging
+
+```csharp
+var result = GetUserById(1)
+    .Tap(user => Console.WriteLine($"User found: {user.Name}"))
+    .Bind(ValidateUser)
+    .Tap(_ => Console.WriteLine("User validation passed"))
+    .Bind(CreateAccount);
+
+```
+
 ### 🚀 Result<T, E> API Summary
 | Method                                                                   | Description                                               |
 |--------------------------------------------------------------------------|-----------------------------------------------------------|
@@ -333,6 +344,8 @@ Console.WriteLine(failed.Errors.First()); // "Must be positive"
 | `.Where(predicate)`                                                      | Filters without specifying an error (uses `default(E)`)   |
 | `.Select(predicate)`                                                     | Transforms `T → U` while keeping `Result<T, E>` structure |
 | `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations               |
+| `.Tap(action)`, `.TapAsync(action)`                                      | Use for logging success                                   |
+| `.TapError(binder)`, `TapErrorAsync(action)`                              | Use for debugging and logging failure                    |
 
 ### When to Use Each?
 | Use Case                                                             | Best Method                    |
