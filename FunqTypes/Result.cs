@@ -73,6 +73,17 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
         IsSuccess ?
             Result<U, E>.Ok(func(Value))
             : Result<U, E>.Fail(Errors.ToArray());
+    
+    /// <summary>
+    /// Transforms the value of a failed result using provided function
+    /// </summary>
+    /// <param name="func"></param>
+    /// <typeparam name="F">The type of the transformed value.</typeparam>
+    /// <returns>A new <see cref="Result{T, F}"/> instance with the transformed errors or the existing value.</returns>
+    public Result<T, F> MapError<F>(Func<E, F> func) =>
+        IsSuccess
+            ? Result<T, F>.Ok(Value)
+            : Result<T, F>.Fail(Errors.Select(func).ToArray());
 
     /// <summary>
     /// Asynchronously transforms the value of a successful result using the provided function.

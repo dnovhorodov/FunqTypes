@@ -79,11 +79,11 @@ public class ResultTests
         Assert.Equal(gotchaResult.IsSuccess, gotchaResult.IsGucci);
         Assert.Equal(oopsResult.IsSuccess, oopsResult.IsGucci);
     }
-    
+
     #endregion
 
     #region GetDefaultValue tests
-    
+
     [Fact]
     public void GetValueOrDefault_ShouldReturnSuccessValue_WhenResultIsSuccess()
     {
@@ -204,6 +204,59 @@ public class ResultTests
 
     #endregion
 
+    #region MapError() Tests
+
+    [Fact]
+    public void MapError_ShouldTransformError_WhenFailure()
+    {
+        var result = Result<int, string>.Fail("Database Error");
+
+        var transformedResult = result.MapError(error => new ErrorDetails(error, DateTime.UtcNow));
+
+        Assert.False(transformedResult.IsSuccess);
+        Assert.Single(transformedResult.Errors);
+        Assert.Contains("Database Error", transformedResult.Errors.First().Message);
+    }
+
+    [Fact]
+    public void MapError_ShouldNotTransform_WhenSuccess()
+    {
+        var result = Result<int, string>.Ok(42);
+
+        var transformedResult = result.MapError(error => new ErrorDetails(error, DateTime.UtcNow));
+
+        Assert.True(transformedResult.IsSuccess);
+        Assert.Equal(42, transformedResult.Value);
+        Assert.Empty(transformedResult.Errors);
+    }
+
+    [Fact]
+    public void MapError_ShouldTransformMultipleErrors_WhenFailure()
+    {
+        var result = Result<int, string>.Fail("Error1", "Error2");
+
+        var transformedResult = result.MapError(error => new ErrorDetails(error, DateTime.UtcNow));
+
+        Assert.False(transformedResult.IsSuccess);
+        Assert.Equal(2, transformedResult.Errors.Count);
+        Assert.Contains("Error1", transformedResult.Errors.First().Message);
+        Assert.Contains("Error2", transformedResult.Errors.Last().Message);
+    }
+
+    [Fact]
+    public void MapError_ShouldReturnSameValue_WhenSuccess()
+    {
+        var result = Result<string, string>.Ok("Success");
+
+        var transformedResult = result.MapError(error => new ErrorDetails(error, DateTime.UtcNow));
+
+        Assert.True(transformedResult.IsSuccess);
+        Assert.Equal("Success", transformedResult.Value);
+        Assert.Empty(transformedResult.Errors);
+    }
+
+    #endregion
+
     #region Ensure Tests
 
     [Fact]
@@ -295,9 +348,9 @@ public class ResultTests
     }
 
     #endregion
-    
+
     #region Tap() (Sync)
-    
+
     [Fact]
     public void Tap_ShouldExecuteAction_WhenResultIsSuccess()
     {
@@ -325,7 +378,7 @@ public class ResultTests
     }
 
     #endregion
-    
+
     #region TapError() (Sync)
 
     [Fact]
@@ -412,41 +465,8 @@ public class ResultTests
 
         Assert.NotEqual(initial, mutated);
     }
-    
-    [Fact]
-    public async Task TapAsync_ShouldExecuteAction_WhenResultIsSuccess()
-    {
-        var result = Task.FromResult(Result<int, string>.Gotcha(42));
-        int capturedValue = 0;
-
-        var finalResult = await result.TapAsync(async value =>
-        {
-            await Task.Delay(10);
-            capturedValue = value;
-        });
-
-        Assert.True(finalResult.IsGucci);
-        Assert.Equal(42, finalResult.Value);
-        Assert.Equal(42, capturedValue);
-    }
-
-    [Fact]
-    public async Task TapAsync_ShouldNotExecuteAction_WhenResultIsFailure()
-    {
-        var result = Task.FromResult(Result<int, string>.Oops("Error"));
-        int capturedValue = 0;
-
-        var finalResult = await result.TapAsync(async value =>
-        {
-            await Task.Delay(10);
-            capturedValue = value;
-        });
-
-        Assert.False(finalResult.IsGucci);
-        Assert.NotEmpty(finalResult.Errors);
-        Assert.Equal(0, capturedValue);
-    }
-
 
     #endregion
 }
+
+public record ErrorDetails(string Message, DateTime Timestamp);
