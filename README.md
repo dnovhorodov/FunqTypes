@@ -291,54 +291,6 @@ Console.WriteLine(ProcessUserInput("User", "Password1")); // Username too short
 Console.WriteLine(ProcessUserInput("ValidUser", "pass")); // Password too short
 Console.WriteLine(ProcessUserInput("ValidUser", "ValidPass1")); // User successfully created
 ```
----
-## 🌐 FunqTypes.AspNet - Helpers for Asp.Net
-
-### Standard Usage (Default `200 OK`)
-```csharp
-[HttpGet("{id}")]
-public async Task<IActionResult> GetAccount(int id)
-{
-    return await GetAccountById(id).ToActionResultAsync();
-}
-```
-* Returns 200 OK on success.
-* Returns 400 Bad Request on failure.
-
-### `201 Created` for POST Requests
-```csharp
-[HttpPost]
-public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
-{
-    return await CreateAccount(request).ToActionResultAsync(HttpStatusCode.Created);
-}
-```
-* Returns 201 Created on success.
-* Returns 400 Bad Request on failure.
-
-### Custom Error Mapping with `HttpStatusCode`
-```csharp
-private static HttpStatusCode MapErrorToStatusCode(ValidationError error) =>
-    error.Code switch
-    {
-        "NOT_FOUND" => HttpStatusCode.NotFound,
-        "INVALID_INPUT" => HttpStatusCode.UnprocessableEntity,
-        "UNAUTHORIZED" => HttpStatusCode.Unauthorized,
-        _ => HttpStatusCode.BadRequest
-    };
-```
-Then, use it in the controller:
-```csharp
-[HttpPut("{id}")]
-public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountRequest request)
-{
-    return await UpdateAccount(id, request).ToActionResultAsync(HttpStatusCode.OK, MapErrorToStatusCode);
-}
-```
-* 404 Not Found for `NOT_FOUND`
-* 422 Unprocessable Entity for `INVALID_INPUT`
-* 401 Unauthorized for `UNAUTHORIZED`
-* 400 Bad Request for other errors
 
 ---
 ## 🚀 **Option<T> - Null-Safe Optional Values**
