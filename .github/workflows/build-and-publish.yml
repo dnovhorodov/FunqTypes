@@ -11,7 +11,7 @@ on:
     branches:
       - main
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       - name: 🏗️ Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: 🔍 Restore dependencies
         run: dotnet restore
@@ -49,16 +49,19 @@ jobs:
       - name: 🏗️ Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: 🔍 Restore dependencies
         run: dotnet restore
-          
+
       - name: 🔧 Extract version from Git tag
         run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
 
-      - name: 🏗️ Pack NuGet package with extracted version
-        run: dotnet pack --configuration Release -p:Version=${{ env.VERSION }} --output nupkg
+      - name: 📦 Pack FunqTypes
+        run: dotnet pack FunqTypes/FunqTypes.csproj --configuration Release -p:Version=${{ env.VERSION }} --output nupkg
 
-      - name: 🚀 Publish to NuGet.org
+      - name: 📦 Pack FunqTypes.AspNetCore
+        run: dotnet pack FunqTypes.AspNetCore/FunqTypes.AspNetCore.csproj --configuration Release -p:Version=${{ env.VERSION }} --output nupkg
+
+      - name: 🚀 Publish all .nupkg to NuGet.org
         run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

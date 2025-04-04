@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes", "FunqTypes\Funq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes.Tests", "FunqTypes.Tests\FunqTypes.Tests.csproj", "{38E3EFC0-13BB-4E05-8E73-D59A736112B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes.AspNetCore", "FunqTypes.AspNetCore\FunqTypes.AspNetCore.csproj", "{B7869BFA-27BF-4BBE-8F47-117A3AAD68F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunqTypes.AspNetCore.Tests", "FunqTypes.AspNetCore.Tests\FunqTypes.AspNetCore.Tests.csproj", "{2FD98169-02D6-4A95-BD83-67D9CC89405F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{38E3EFC0-13BB-4E05-8E73-D59A736112B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38E3EFC0-13BB-4E05-8E73-D59A736112B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38E3EFC0-13BB-4E05-8E73-D59A736112B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7869BFA-27BF-4BBE-8F47-117A3AAD68F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7869BFA-27BF-4BBE-8F47-117A3AAD68F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7869BFA-27BF-4BBE-8F47-117A3AAD68F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7869BFA-27BF-4BBE-8F47-117A3AAD68F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FD98169-02D6-4A95-BD83-67D9CC89405F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD98169-02D6-4A95-BD83-67D9CC89405F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD98169-02D6-4A95-BD83-67D9CC89405F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD98169-02D6-4A95-BD83-67D9CC89405F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

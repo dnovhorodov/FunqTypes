@@ -4,12 +4,12 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>FunqTypes</PackageId>
+    <PackageId>FunqTypes.AspNetCore</PackageId>
     <Version>1.0.0</Version>
     <Authors>Danyl Novhorodov</Authors>
-    <Product>FunqTypes</Product>    
-    <Description>FunqTypes is a lightweight functional types for C# featuring functional error handling and null-safety.</Description>    
-    <PackageTags>FunctionalProgramming;CSharp;FSharp;Monads;ErrorHandling</PackageTags>
+    <Product>FunqTypes</Product>
+    <Description>FunqTypes.AspNetCore IActionResult helpers for FunqTypes.</Description>
+    <PackageTags>FunctionalProgramming;CSharp;FSharp;Monads;ErrorHandling;Asp.Net</PackageTags>
     <PackageProjectUrl>https://github.com/dnovhorodov/FunqTypes</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dnovhorodov/FunqTypes.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -21,7 +21,15 @@
 
   <ItemGroup>
     <None Include="../icon.png" Pack="true" PackagePath=""/>
-    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FunqTypes\FunqTypes.csproj"/>
   </ItemGroup>
 
 </Project>
