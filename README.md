@@ -24,133 +24,6 @@
 ```sh
 dotnet add package FunqTypes
 ```
-
-## 🚀 **Option<T> - Null-Safe Optional Values**
-`Option<T>` represents an optional value that is either:
-* `Some(T)` – Contains a value ✅
-* `None` – Represents the absence of a value ❌
-
-### ✅ Create an Option
-```csharp
-var someValue = Option<int>.Some(42);
-var noneValue = Option<int>.None();
-```
-### Or use the Funq-style aliases 🤘:
-```csharp
-var funky = Option<int>.Yeah(42); // Same as Some(42)
-var empty = Option<int>.Nah();   // Same as None()
-```
-
-### 🔄 Implicit Conversions
-```csharp
-Option<string> implicitSome = "FunqTypes"; // Automatically converts to Some("FunqTypes")
-Option<string> implicitNone = null;        // Automatically converts to None()
-```
-**✔ No need to manually check for null anymore!**
-
-### 🎯 Accessing Values
-```csharp
-var option = Option<int>.Yeah(10);
-
-Console.WriteLine(option.GetValueOrDefault());        // Output: 10
-Console.WriteLine(option.GetValueOrDefault(100));    // Output: 10
-Console.WriteLine(Option<int>.Nah().GetValueOrDefault(100)); // Output: 100
-```
-
-**✔ Supports custom defaults and lazy evaluation:**
-```csharp
-var fallback = Option<int>.Nah().GetValueOrDefault(() => ComputeExpensiveValue());
-```
-
-### 🛠️ Functional Methods
-
-**✅ Map – Transform an Option**
-```csharp
-var option = Option<int>.Yeah(5);
-var doubled = option.Map(x => x * 2);
-
-Console.WriteLine(doubled.GetValueOrDefault()); // Output: 10
-```
-
-**✔ If None, mapping does nothing:**
-```csharp
-Option<int>.Nah().Map(x => x * 2); // Stays None
-```
-
-**✅ Bind – Flatten Nested Options**
-```csharp
-Option<int> Parse(string input) =>
-    int.TryParse(input, out var num) ? Option<int>.Yeah(num) : Option<int>.Nah();
-
-var result = Option<string>.Yeah("42").Bind(Parse);
-
-Console.WriteLine(result.GetValueOrDefault()); // Output: 42
-```
-
-### 🔍 Filtering with Where
-```csharp
-var option = Option<int>.Yeah(10);
-var filtered = option.Where(x => x > 5);  // Stays Some(10)
-var noneFiltered = option.Where(x => x > 15); // Becomes None()
-
-Console.WriteLine(filtered.IsSome); // True
-Console.WriteLine(noneFiltered.IsNone); // True
-```
-
-### 🖥️ Executing Side Effects with IfYeah and IfNone
-```csharp
-var option = Option<string>.Yeah("FunqTypes Rocks!");
-
-option.IfYeah(Console.WriteLine); // Output: "FunqTypes Rocks!"
-option.IfNah(() => Console.WriteLine("No value found.")); // Not called
-```
-
-**✔ Works even if the option is empty:**
-```csharp
-Option<string>.Nah().IfNah(() => Console.WriteLine("No value found.")); // Output: "No value found."
-```
-
-### 📦 Convert Option<T> to Result<T, E>
-```csharp
-var optionalData = Option<int>.Nah();
-var result = optionalData.ToResult("Value not found");
-
-Console.WriteLine(result.IsNeat); // False
-Console.WriteLine(result.Errors.First()); // Output: "Value not found"
-```
-
-### 🔁 ToEnumerable() for LINQ Support
-```csharp
-var option = Option<int>.Yeah(5);
-var sum = option.ToEnumerable()
-                .Select(x => x * 2)
-                .Sum();
-
-Console.WriteLine(sum); // Output: 10
-```
-
-**✔ Empty Option<T> results in an empty sequence:**
-```csharp
-var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
-```
-
-### 🚀 Option<T> API Summary
-| Method                             | Description                                |
-|------------------------------------|--------------------------------------------|
-| `Option<T>.Some(value)`            | Creates an Option containing value         |
-| `Option<T>.None()`                 | Represents the absence of a value          |
-| `.Yeah(value)`                     | Alias for `Some(value)`                    |
-| `.Nah()`                           | Alias for `None() `                        |
-| `.GetValueOrDefault()`             | Returns the value or `default(T)`          |
-| `.GetValueOrDefault(fallback)`     | Returns the value or fallback              |
-| `.Map(func)`                       | Transforms `Option<T>` into `Option<U>`    |
-| `.Bind(func)`                      | Maps `Option<T>` to another `Option<U>`    |
-| `.Where(predicate)`                | Filters `Option<T>`                        |
-| `IfSome(action)`,`.IfYeah(action)` | Executes action if `Some`                  |
-| `IfNone(action)`,`.IfNah(action)`  | Executes action if `None`                  |
-| `ToResult(error)`                  | Converts `Option<T>` to `Result<T, E>`     |
-| `ToEnumerable()`                   | Converts `Option<T>` into `IEnumerable<T>` |
-
 ---
 
 ## 🚀 **Result<T, E> - Handle Success or Error**
@@ -418,5 +291,180 @@ Console.WriteLine(ProcessUserInput("User", "Password1")); // Username too short
 Console.WriteLine(ProcessUserInput("ValidUser", "pass")); // Password too short
 Console.WriteLine(ProcessUserInput("ValidUser", "ValidPass1")); // User successfully created
 ```
+---
+## 🌐 FunqTypes.AspNet - Helpers for Asp.Net
+
+### Standard Usage (Default `200 OK`)
+```csharp
+[HttpGet("{id}")]
+public async Task<IActionResult> GetAccount(int id)
+{
+    return await GetAccountById(id).ToActionResultAsync();
+}
+```
+* Returns 200 OK on success.
+* Returns 400 Bad Request on failure.
+
+### `201 Created` for POST Requests
+```csharp
+[HttpPost]
+public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
+{
+    return await CreateAccount(request).ToActionResultAsync(HttpStatusCode.Created);
+}
+```
+* Returns 201 Created on success.
+* Returns 400 Bad Request on failure.
+
+### Custom Error Mapping with `HttpStatusCode`
+```csharp
+private static HttpStatusCode MapErrorToStatusCode(ValidationError error) =>
+    error.Code switch
+    {
+        "NOT_FOUND" => HttpStatusCode.NotFound,
+        "INVALID_INPUT" => HttpStatusCode.UnprocessableEntity,
+        "UNAUTHORIZED" => HttpStatusCode.Unauthorized,
+        _ => HttpStatusCode.BadRequest
+    };
+```
+Then, use it in the controller:
+```csharp
+[HttpPut("{id}")]
+public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountRequest request)
+{
+    return await UpdateAccount(id, request).ToActionResultAsync(HttpStatusCode.OK, MapErrorToStatusCode);
+}
+```
+* 404 Not Found for `NOT_FOUND`
+* 422 Unprocessable Entity for `INVALID_INPUT`
+* 401 Unauthorized for `UNAUTHORIZED`
+* 400 Bad Request for other errors
+
+---
+## 🚀 **Option<T> - Null-Safe Optional Values**
+`Option<T>` represents an optional value that is either:
+* `Some(T)` – Contains a value ✅
+* `None` – Represents the absence of a value ❌
+
+### ✅ Create an Option
+```csharp
+var someValue = Option<int>.Some(42);
+var noneValue = Option<int>.None();
+```
+### Or use the Funq-style aliases 🤘:
+```csharp
+var funky = Option<int>.Yeah(42); // Same as Some(42)
+var empty = Option<int>.Nah();   // Same as None()
+```
+
+### 🔄 Implicit Conversions
+```csharp
+Option<string> implicitSome = "FunqTypes"; // Automatically converts to Some("FunqTypes")
+Option<string> implicitNone = null;        // Automatically converts to None()
+```
+**✔ No need to manually check for null anymore!**
+
+### 🎯 Accessing Values
+```csharp
+var option = Option<int>.Yeah(10);
+
+Console.WriteLine(option.GetValueOrDefault());        // Output: 10
+Console.WriteLine(option.GetValueOrDefault(100));    // Output: 10
+Console.WriteLine(Option<int>.Nah().GetValueOrDefault(100)); // Output: 100
+```
+
+**✔ Supports custom defaults and lazy evaluation:**
+```csharp
+var fallback = Option<int>.Nah().GetValueOrDefault(() => ComputeExpensiveValue());
+```
+
+### 🛠️ Functional Methods
+
+**✅ Map – Transform an Option**
+```csharp
+var option = Option<int>.Yeah(5);
+var doubled = option.Map(x => x * 2);
+
+Console.WriteLine(doubled.GetValueOrDefault()); // Output: 10
+```
+
+**✔ If None, mapping does nothing:**
+```csharp
+Option<int>.Nah().Map(x => x * 2); // Stays None
+```
+
+**✅ Bind – Flatten Nested Options**
+```csharp
+Option<int> Parse(string input) =>
+    int.TryParse(input, out var num) ? Option<int>.Yeah(num) : Option<int>.Nah();
+
+var result = Option<string>.Yeah("42").Bind(Parse);
+
+Console.WriteLine(result.GetValueOrDefault()); // Output: 42
+```
+
+### 🔍 Filtering with Where
+```csharp
+var option = Option<int>.Yeah(10);
+var filtered = option.Where(x => x > 5);  // Stays Some(10)
+var noneFiltered = option.Where(x => x > 15); // Becomes None()
+
+Console.WriteLine(filtered.IsSome); // True
+Console.WriteLine(noneFiltered.IsNone); // True
+```
+
+### 🖥️ Executing Side Effects with IfYeah and IfNone
+```csharp
+var option = Option<string>.Yeah("FunqTypes Rocks!");
+
+option.IfYeah(Console.WriteLine); // Output: "FunqTypes Rocks!"
+option.IfNah(() => Console.WriteLine("No value found.")); // Not called
+```
+
+**✔ Works even if the option is empty:**
+```csharp
+Option<string>.Nah().IfNah(() => Console.WriteLine("No value found.")); // Output: "No value found."
+```
+
+### 📦 Convert Option<T> to Result<T, E>
+```csharp
+var optionalData = Option<int>.Nah();
+var result = optionalData.ToResult("Value not found");
+
+Console.WriteLine(result.IsNeat); // False
+Console.WriteLine(result.Errors.First()); // Output: "Value not found"
+```
+
+### 🔁 ToEnumerable() for LINQ Support
+```csharp
+var option = Option<int>.Yeah(5);
+var sum = option.ToEnumerable()
+                .Select(x => x * 2)
+                .Sum();
+
+Console.WriteLine(sum); // Output: 10
+```
+
+**✔ Empty Option<T> results in an empty sequence:**
+```csharp
+var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
+```
+
+### 🚀 Option<T> API Summary
+| Method                             | Description                                |
+|------------------------------------|--------------------------------------------|
+| `Option<T>.Some(value)`            | Creates an Option containing value         |
+| `Option<T>.None()`                 | Represents the absence of a value          |
+| `.Yeah(value)`                     | Alias for `Some(value)`                    |
+| `.Nah()`                           | Alias for `None() `                        |
+| `.GetValueOrDefault()`             | Returns the value or `default(T)`          |
+| `.GetValueOrDefault(fallback)`     | Returns the value or fallback              |
+| `.Map(func)`                       | Transforms `Option<T>` into `Option<U>`    |
+| `.Bind(func)`                      | Maps `Option<T>` to another `Option<U>`    |
+| `.Where(predicate)`                | Filters `Option<T>`                        |
+| `IfSome(action)`,`.IfYeah(action)` | Executes action if `Some`                  |
+| `IfNone(action)`,`.IfNah(action)`  | Executes action if `None`                  |
+| `ToResult(error)`                  | Converts `Option<T>` to `Result<T, E>`     |
+| `ToEnumerable()`                   | Converts `Option<T>` into `IEnumerable<T>` |
 
 🔥 Star the repo if you find this useful! ⭐
