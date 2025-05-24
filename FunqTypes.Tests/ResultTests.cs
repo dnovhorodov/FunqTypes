@@ -36,7 +36,7 @@ public class ResultTests
         var gotchaResult = Result<string, FunqError>.Gotcha(Value);
         var okResult = Result<string, FunqError>.Ok(Value);
 
-        Assert.True(gotchaResult.IsSuccess, "gotcha should be successful.");
+        Assert.True(gotchaResult.IsSuccess, "Gotcha should be successful.");
         Assert.True(okResult.IsSuccess, "Success should be successful.");
         Assert.Equivalent(okResult, gotchaResult);
     }
@@ -57,7 +57,7 @@ public class ResultTests
     [Fact]
     public void IsGucci_ShouldBeTrueFor_Gotcha()
     {
-        var result = Result<int, FunqError>.Gotcha(42);
+        var result = Gotcha(42);
 
         Assert.True(result.IsGucci, "IsGucci should return true for a successful result.");
     }
@@ -73,11 +73,62 @@ public class ResultTests
     [Fact]
     public void IsGucci_ShouldBeAliasFor_IsSuccess()
     {
-        var gotchaResult = Result<int, FunqError>.Gotcha(100);
+        var gotchaResult = Gotcha(100);
         var oopsResult = Oops(new FunqError("FAIL", "Oops'd"));
 
         Assert.Equal(gotchaResult.IsSuccess, gotchaResult.IsGucci);
         Assert.Equal(oopsResult.IsSuccess, oopsResult.IsGucci);
+    }
+
+    [Fact]
+    public void Unit_Value_ShouldBeEqual()
+    {
+        var unit1 = Unit.Value;
+        var unit2 = Unit.Value;
+
+        Assert.Equal(unit1, unit2);
+        Assert.True(unit1.Equals(unit2));
+    }
+
+    [Fact]
+    public void Result_WithUnit_ShouldMatchSuccess()
+    {
+        var result = Result<Unit, FunqError>.Ok(Unit.Value);
+
+        var matched = result.Match(
+            ok => true,
+            error => false
+        );
+
+        Assert.True(matched);
+    }
+
+    [Fact]
+    public void Result_WithError_ShouldNotAccessUnit()
+    {
+        var error = new FunqError("test", "Something failed");
+        var result = Result<Unit, FunqError>.Fail(error);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(error, result.Errors.First());
+    }
+
+    [Fact]
+    public void Unit_ShouldSignalCompletion()
+    {
+        var sideEffect = false;
+
+        Result<Unit, FunqError>.Ok(Unit.Value)
+            .Match(
+                ok =>
+                {
+                    sideEffect = true;
+                    return Unit.Value;
+                },
+                error => Unit.Value
+            );
+
+        Assert.True(sideEffect);
     }
 
     #endregion
