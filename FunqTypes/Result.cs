@@ -17,7 +17,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="value">The value of the successful operation.</param>
     /// <returns>A successful <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Ok(T value) => new(value, true, new List<E> { });
+    public static Result<T, E> Ok(T value) => new(value, true, new List<E>());
 
     /// <summary>
     /// Funky way to create a successful result.
