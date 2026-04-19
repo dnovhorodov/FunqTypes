@@ -75,4 +75,4 @@ jobs:
           user: danyl.novhorodov          
         
       - name: 🚀 Publish all .nupkg to NuGet.org
-        run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --skip-duplicate
