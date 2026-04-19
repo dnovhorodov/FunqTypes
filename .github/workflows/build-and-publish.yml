@@ -71,6 +71,7 @@ jobs:
         # Trades the GitHub OIDC token for a 60-minute NuGet API key
       - name: 🔑 NuGet Login (OIDC)
         uses: NuGet/login@v1
+        id: nuget_login
         with:
           user: danyl.novhorodov          
         
