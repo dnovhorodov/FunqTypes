@@ -326,4 +326,26 @@ public class OptionTests
     }
 
     #endregion
+
+    #region Match, Or & OrElse
+
+    [Fact]
+    public void Match_PicksBranch()
+    {
+        Assert.Equal("s5", Some(5).Match(x => $"s{x}", () => "n"));
+        Assert.Equal("n", None().Match(x => $"s{x}", () => "n"));
+    }
+
+    [Fact]
+    public void Or_OrElse_FallBackOnlyWhenNone()
+    {
+        var some = Option<int>.Some(1);
+        var none = Option<int>.None();
+        Assert.Equal(1, some.Or(2).GetValueOrDefault());
+        Assert.Equal(2, none.Or(2).GetValueOrDefault());
+        Assert.Equal(1, some.OrElse(() => throw new Exception()).GetValueOrDefault());
+        Assert.Equal(2, none.OrElse(() => 2).GetValueOrDefault());
+    }
+
+    #endregion
 }

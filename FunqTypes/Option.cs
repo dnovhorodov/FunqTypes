@@ -142,6 +142,21 @@ public readonly record struct Option<T>
         IsSome && predicate(_value!) ? this : None();
 
     /// <summary>
+    /// Unwraps the option by applying <paramref name="some"/> if Some, otherwise <paramref name="none"/>.
+    /// </summary>
+    public R Match<R>(Func<T, R> some, Func<R> none) => IsSome ? some(_value!) : none();
+
+    /// <summary>
+    /// Returns this option if Some, otherwise <paramref name="fallback"/>.
+    /// </summary>
+    public Option<T> Or(Option<T> fallback) => IsSome ? this : fallback;
+
+    /// <summary>
+    /// Returns this option if Some, otherwise the lazily computed <paramref name="fallback"/>.
+    /// </summary>
+    public Option<T> OrElse(Func<Option<T>> fallback) => IsSome ? this : fallback();
+
+    /// <summary>
     /// Implicitly converts a value to an <see cref="Option{T}"/>.
     /// </summary>
     /// <param name="value">The value to convert.</param>

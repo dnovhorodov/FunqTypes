@@ -144,7 +144,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <param name="error">An error to return if the validation fails.</param>
     /// <returns>A new <see cref="Result{T, E}"/> based on the validation.</returns>
     public Result<T, E> Ensure(Func<T, bool> predicate, E error) =>
-        IsSuccess && predicate(Value) ? this : Fail(error);
+        !IsSuccess || predicate(Value) ? this : Fail(error);
     
     /// <summary>
     /// Asynchronously ensures the success or returns a failure.
