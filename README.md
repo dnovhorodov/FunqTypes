@@ -9,7 +9,7 @@
 
 ## 🎯 **What is FunqTypes?**
 **FunqTypes** is a set of **functional types and helpers for .NET** that brings **null-safety, error handling and composition** to C# applications. It provides:
-- ✅ **`Result<T>` type** - Monadic error handling with `Ok/Fail` or `Gotcha/Oops` alternative aliases
+- ✅ **`Result<T, E>` type** - Monadic error handling with `Ok/Fail` or `Gotcha/Oops` alternative aliases
 - ✅ **`Option<T>` type** - Null-safe optional values with `Some/None` or `Yeah/Nah` alternative aliases
 - ✅ **LINQ & FP Support** - Fluent mappings, binding, filtering
 - ✅ **Zero Overhead** - Efficient `readonly record struct` implementation
@@ -44,11 +44,11 @@ Console.WriteLine(failure.IsSuccess); // False
 ```
 ### Or use the Funq-style aliases 🤘:
 ```csharp
-var funkySuccess = Result<int, FunqError>.Gotcha(42); // Same as Some(42)
-var funkyFailure = Result<int, FunqError>.Oops();   // Same as None()
+var funkySuccess = Result<int, FunqError>.Gotcha(42); // Same as Ok(42)
+var funkyFailure = Result<int, FunqError>.Oops(new FunqError("INVALID", "Invalid input")); // Same as Fail(...)
 
 Console.WriteLine(funkySuccess.IsGucci); // True
-Console.WriteLine(funkySuccess.IsGucci); // False
+Console.WriteLine(funkyFailure.IsGucci); // False
 ```
 
 ### 🔄 Monadic Composition (Fail-Fast Approach)
@@ -152,7 +152,7 @@ Console.WriteLine(result.Value); // 10
 ```
 **✔ If the Result is already a failure, Select does nothing:**
 
-```chsarp
+```csharp
 var failed = Result<int, string>.Oops("Invalid number")
     .Select(x => x * 2);
 
@@ -212,13 +212,14 @@ var result = GetUserById(1)
 | `.Combine(results...)`                                                   | Combines multiple results, accumulating errors            |
 | `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                     |
 | `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure            |
-| `.GetValueOrDefault(), .GetValueOrDefault(T), ..GetValueOrDefault(func)` | Returns success value or default                          |
+| `.GetValueOrDefault(), .GetValueOrDefault(T), .GetValueOrDefault(func)` | Returns success value or default                          |
 | `.Where(predicate, error)`                                               | Filters `Result<T, E>`, failing if predicate is false     |
 | `.Where(predicate)`                                                      | Filters without specifying an error (uses `default(E)`)   |
-| `.Select(predicate)`                                                     | Transforms `T → U` while keeping `Result<T, E>` structure |
+| `.Select(selector)`                                                      | Transforms `T → U` while keeping `Result<T, E>` structure |
 | `.SelectMany(binder)`                                                    | Chains multiple `Result<T, E>` computations               |
 | `.Tap(action)`, `.TapAsync(action)`                                      | Use for logging success                                   |
-| `.TapError(binder)`, `TapErrorAsync(action)`                              | Use for debugging and logging failure                    |
+| `.TapError(action)`, `.TapErrorAsync(action)`                            | Use for debugging and logging failure                     |
+| `.MapError(func)`, `.MapErrorAsync(func)`                                | Transforms the errors of a failed result                  |
 
 ### When to Use Each?
 | Use Case                                                             | Best Method                    |
@@ -235,8 +236,8 @@ var result = GetUserById(1)
 ```csharp
 public static Result<int, string> ParseNumber(string input) =>
     int.TryParse(input, out int number)
-        ? Result<int>.Gotcha(number)
-        : Result<int>.Oops("Invalid number format.");
+        ? Result<int, string>.Gotcha(number)
+        : Result<int, string>.Oops("Invalid number format.");
 
 var result = Result<string, string>.Gotcha("42")
     .Bind(ParseNumber)
@@ -251,7 +252,7 @@ var message = result.Match(
 Console.WriteLine(message); // Output: "Processed number: 84"
 ```
 
-### 🔹 Aggregating Multiple Validations Using Ensure
+### 🔹 Chaining Multiple Validations Using Ensure (first failure wins)
 ```csharp
 var result = Result<string, string>.Gotcha("Ad")
     .Ensure(name => name.Length >= 3, "Name must be at least 3 characters.")
@@ -275,7 +276,7 @@ public static string ProcessUserInput(string username, string password)
         .Ensure(u => u.Length >= 5, "Username must be at least 5 characters.")
         .Ensure(u => !u.Contains(" "), "Username cannot contain spaces.")
         .Ensure(u => char.IsLetter(u[0]), "Username must start with a letter.")
-        .Bind(_ => Result<string>.Gotcha(password))
+        .Bind(_ => Result<string, string>.Gotcha(password))
         .Ensure(p => p.Length >= 8, "Password must be at least 8 characters.")
         .Ensure(p => p.Any(char.IsDigit), "Password must contain at least one number.")
         .Ensure(p => p.Any(char.IsUpper), "Password must contain at least one uppercase letter.");
@@ -378,12 +379,31 @@ option.IfNah(() => Console.WriteLine("No value found.")); // Not called
 Option<string>.Nah().IfNah(() => Console.WriteLine("No value found.")); // Output: "No value found."
 ```
 
+### 🎭 Unwrapping with Match
+```csharp
+var text = Option<int>.Yeah(5).Match(
+    value => $"Got {value}",
+    () => "Nothing");
+
+Console.WriteLine(text); // Output: "Got 5"
+```
+
+### 🔀 Fallbacks with Or and OrElse
+```csharp
+var cached = Option<string>.Nah();
+var fromDb = Option<string>.Yeah("db value");
+
+cached.Or(fromDb);                    // Some("db value")
+cached.OrElse(() => LoadFromDb());    // Fallback is evaluated only when None
+fromDb.OrElse(() => LoadFromDb());    // Not called, stays Some("db value")
+```
+
 ### 📦 Convert Option<T> to Result<T, E>
 ```csharp
 var optionalData = Option<int>.Nah();
 var result = optionalData.ToResult("Value not found");
 
-Console.WriteLine(result.IsNeat); // False
+Console.WriteLine(result.IsSuccess); // False
 Console.WriteLine(result.Errors.First()); // Output: "Value not found"
 ```
 
@@ -402,6 +422,18 @@ Console.WriteLine(sum); // Output: 10
 var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
 ```
 
+### 🔧 Creating Options from nullable values and sequences
+`ToOption()` works on nullable reference and value types, `FirstOrNone()` returns the first non-null element:
+```csharp
+string? name = null;
+int? age = 30;
+
+name.ToOption();                               // None
+age.ToOption();                                // Some(30)
+new string?[] { null, "a", "b" }.FirstOrNone(); // Some("a")
+Array.Empty<string>().FirstOrNone();           // None
+```
+
 ### 🚀 Option<T> API Summary
 | Method                             | Description                                |
 |------------------------------------|--------------------------------------------|
@@ -410,7 +442,12 @@ var sum = Option<int>.Nah().ToEnumerable().Sum(); // 0
 | `.Yeah(value)`                     | Alias for `Some(value)`                    |
 | `.Nah()`                           | Alias for `None() `                        |
 | `.GetValueOrDefault()`             | Returns the value or `default(T)`          |
-| `.GetValueOrDefault(fallback)`     | Returns the value or fallback              |
+| `.GetValueOrDefault(fallback)`     | Returns the value or fallback (value or `Func<T>`) |
+| `.Match(some, none)`               | Unwraps the option into a single value     |
+| `.Or(option)`                      | Returns this option or the fallback option |
+| `.OrElse(func)`                    | Same as `Or`, fallback evaluated lazily    |
+| `.ToOption()`                      | `T?` (class or struct) to `Option<T>`      |
+| `.FirstOrNone()`                   | First non-null element as `Option<T>`      |
 | `.Map(func)`                       | Transforms `Option<T>` into `Option<U>`    |
 | `.Bind(func)`                      | Maps `Option<T>` to another `Option<U>`    |
 | `.Where(predicate)`                | Filters `Option<T>`                        |

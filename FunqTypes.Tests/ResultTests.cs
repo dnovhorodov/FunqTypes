@@ -321,6 +321,16 @@ public class ResultTests
     }
 
     [Fact]
+    public void Ensure_ShouldKeepFirstFailure()
+    {
+        var result = Ok(16)
+            .Ensure(x => x >= 18, new FunqError("FIRST", "first"))
+            .Ensure(x => x >= 21, new FunqError("SECOND", "second"));
+
+        Assert.Equal("FIRST", Assert.Single(result.Errors).Code);
+    }
+
+    [Fact]
     public void Ensure_ShouldFailWhenConditionIsNotMet()
     {
         var error = new FunqError("AGE_INVALID", "Age must be 18 or older");
