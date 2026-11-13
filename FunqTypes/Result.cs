@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -12,12 +11,15 @@ using System.Threading.Tasks;
 /// <typeparam name="E">The type of the error</typeparam>
 public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Errors)
 {
+    // ponytail: shared empty list avoids 32B alloc per Ok() while keeping List<E> signature; switch to IReadOnlyList<E> if callers mutate Errors
+    private static readonly List<E> EmptyErrors = [];
+
     /// <summary>
     /// Creates a successful result with the provided value.
     /// </summary>
     /// <param name="value">The value of the successful operation.</param>
     /// <returns>A successful <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Ok(T value) => new(value, true, new List<E>());
+    public static Result<T, E> Ok(T value) => new(value, true, EmptyErrors);
 
     /// <summary>
     /// Funky way to create a successful result.
@@ -27,12 +29,27 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     public static Result<T, E> Gotcha(T value) => Ok(value);
 
     /// <summary>
+    /// Creates a failed result with a single error without params array allocation.
+    /// </summary>
+    /// <param name="error">The error explaining the failure.</param>
+    /// <returns>A failed <see cref="Result{T, E}"/> instance.</returns>
+    public static Result<T, E> Fail(E error) => new(default!, false, [error]);
+
+    /// <summary>
     /// Creates a failed result with the provided error.
     /// </summary>
     /// <param name="errors">One or more error explaining the failure.</param>
     /// <returns>A failed <see cref="Result{T, E}"/> instance.</returns>
-    public static Result<T, E> Fail(params E[] errors) => new(default!, false, errors.ToList());
-    
+    public static Result<T, E> Fail(params E[] errors) =>
+        errors.Length == 0 ? new(default!, false, EmptyErrors) : new(default!, false, [.. errors]);
+
+    /// <summary>
+    /// Funky way to create a failed result with a single error.
+    /// </summary>
+    /// <param name="error">The error explaining the failure.</param>
+    /// <returns>A failed <see cref="Result{T, E}"/> instance.</returns>
+    public static Result<T, E> Oops(E error) => Fail(error);
+
     /// <summary>
     /// Funky way to create a failed result.
     /// </summary>
@@ -44,19 +61,19 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// Did this succeed?
     /// </summary>
     public bool IsGucci => IsSuccess;
-    
+
     /// <summary>
     /// Returns the value if the result is a success; otherwise, returns the default value of <see cref="T"/>
     /// </summary>
     /// <returns>An instance of <see cref="T"/></returns>
     public T GetValueOrDefault() => IsSuccess ? Value : default!;
-    
+
     /// <summary>
     /// Returns the value if the result is a success; otherwise, returns the specified default value
     /// </summary>
     /// <returns>Default value</returns>
     public T GetValueOrDefault(T defaultValue) => IsSuccess ? Value : defaultValue;
-    
+
     /// <summary>
     /// Returns the value if the result is a success; otherwise, returns a value provided by a factory function
     /// </summary>
@@ -70,20 +87,27 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <param name="func">A function to transform the success value.</param>
     /// <returns>A new <see cref="Result{U, E}"/> instance with the transformed value or the existing errors.</returns>
     public Result<U, E> Map<U>(Func<T, U> func) =>
-        IsSuccess ?
-            Result<U, E>.Ok(func(Value))
-            : Result<U, E>.Fail(Errors.ToArray());
-    
+        IsSuccess
+            ? Result<U, E>.Ok(func(Value))
+            : new(default!, false, Errors);
+
     /// <summary>
     /// Transforms the value of a failed result using provided function
     /// </summary>
     /// <param name="func"></param>
     /// <typeparam name="F">The type of the transformed value.</typeparam>
     /// <returns>A new <see cref="Result{T, F}"/> instance with the transformed errors or the existing value.</returns>
-    public Result<T, F> MapError<F>(Func<E, F> func) =>
-        IsSuccess
-            ? Result<T, F>.Ok(Value)
-            : Result<T, F>.Fail(Errors.Select(func).ToArray());
+    public Result<T, F> MapError<F>(Func<E, F> func)
+    {
+        if (IsSuccess)
+            return Result<T, F>.Ok(Value);
+        
+        var mapped = new List<F>(Errors.Count);
+        foreach (var error in Errors)
+            mapped.Add(func(error));
+        
+        return new(default!, false, mapped);
+    }
 
     /// <summary>
     /// Asynchronously transforms the value of a successful result using the provided function.
@@ -94,7 +118,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     public async Task<Result<U, E>> MapAsync<U>(Func<T, Task<U>> func) =>
         IsSuccess
             ? Result<U, E>.Ok(await func(Value).ConfigureAwait(false))
-            : Result<U, E>.Fail(Errors.ToArray());
+            : new(default!, false, Errors);
 
     /// <summary>
     /// Chains another result-producing function, propagating errors if the current result is a failure.
@@ -103,7 +127,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <param name="func">A function that takes the success value and returns a new <see cref="Result{U, E}"/>.</param>
     /// <returns>A new <see cref="Result{U, E}"/> instance.</returns>
     public Result<U, E> Bind<U>(Func<T, Result<U, E>> func) =>
-        IsSuccess ? func(Value) : Result<U, E>.Fail(Errors.ToArray());
+        IsSuccess ? func(Value) : new(default!, false, Errors);
 
     /// <summary>
     /// Asynchronously chains another result-producing function.
@@ -112,9 +136,9 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <param name="func">An asynchronous function that takes the success value and returns a new <see cref="Result{U, E}"/>.</param>
     /// <returns>A task representing a new <see cref="Result{U, E}"/> instance.</returns>
     public async Task<Result<U, E>> BindAsync<U>(Func<T, Task<Result<U, E>>> func) =>
-        IsSuccess ?
-            await func(Value).ConfigureAwait(false)
-            : Result<U, E>.Fail(Errors.ToArray());
+        IsSuccess
+            ? await func(Value).ConfigureAwait(false)
+            : new(default!, false, Errors);
 
     /// <summary>
     /// Combines multiple results, accumulating errors if any exist.
@@ -123,8 +147,14 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <returns>A single <see cref="Result{T, E}"/> containing the first valid value or all accumulated errors.</returns>
     public static Result<T, E> Combine(params Result<T, E>[] results)
     {
-        var errors = results.SelectMany(r => r.Errors).ToList();
-        return errors.Count != 0 ? Fail(errors.ToArray()) : Ok(results[0].Value);
+        List<E>? errors = null;
+        foreach (var r in results)
+        {
+            if (!r.IsSuccess)
+                (errors ??= []).AddRange(r.Errors);
+        }
+
+        return errors is not null ? new(default!, false, errors) : Ok(results[0].Value);
     }
 
     /// <summary>
@@ -145,7 +175,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <returns>A new <see cref="Result{T, E}"/> based on the validation.</returns>
     public Result<T, E> Ensure(Func<T, bool> predicate, E error) =>
         !IsSuccess || predicate(Value) ? this : Fail(error);
-    
+
     /// <summary>
     /// Asynchronously ensures the success or returns a failure.
     /// </summary>
@@ -167,7 +197,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// <returns>The same instance of <see cref="Result{T, E}"/></returns>
     public Result<T, E> Tap(Action<T> action)
     {
-        if(IsSuccess)
+        if (IsSuccess)
             action(Value);
 
         return this;
@@ -186,7 +216,7 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
 
         return this;
     }
-    
+
     /// <summary>
     /// Implicitly converts a value into a successful result.
     /// </summary>

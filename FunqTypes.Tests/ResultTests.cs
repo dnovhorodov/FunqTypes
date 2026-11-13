@@ -527,6 +527,18 @@ public class ResultTests
         Assert.NotEqual(initial, mutated);
     }
 
+    [Fact]
+    public void Ok_And_Propagated_Failures_ShouldShareErrorListInstance()
+    {
+        var ok1 = Ok(1);
+        var ok2 = ok1.Map(x => x + 1);
+        var fail1 = Fail(new FunqError("ERR", "msg"));
+        var fail2 = fail1.Map(x => x.ToString());
+
+        Assert.Same(ok1.Errors, ok2.Errors);
+        Assert.Same(fail1.Errors, fail2.Errors);
+    }
+
     #endregion
 }
 

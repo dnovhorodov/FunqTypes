@@ -43,7 +43,7 @@ public static class ResultLinqExtensions
     {
         return result.IsSuccess
             ? Result<U, E>.Ok(selector(result.Value))
-            : Result<U, E>.Fail(result.Errors.ToArray());
+            : new(default!, false, result.Errors);
     }
 
     /// <summary>
@@ -57,6 +57,6 @@ public static class ResultLinqExtensions
     /// <returns>A new <see cref="Result{U, E}"/> instance.</returns>
     public static Result<U, E> SelectMany<T, U, E>(this Result<T, E> result, Func<T, Result<U, E>> binder)
     {
-        return result.IsSuccess ? binder(result.Value) : Result<U, E>.Fail(result.Errors.ToArray());
+        return result.IsSuccess ? binder(result.Value) : new(default!, false, result.Errors);
     }
 }
