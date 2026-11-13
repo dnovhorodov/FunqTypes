@@ -70,4 +70,71 @@ public class ResultExtensionsTTests
         Assert.False(result.IsSuccess);
         Assert.Equal(new[] { "e2", "e3", "e5" }, result.Errors);
     }
+
+    [Fact]
+    public void Combine2_To_8_And_DeconstructingMap_ShouldWork()
+    {
+        var r2 = Result.Combine(Result<int, string>.Ok(1), Result<string, string>.Ok("2"))
+            .Map((a, b) => $"{a}-{b}");
+        Assert.Equal("1-2", r2.Value);
+
+        var r3 = Result.Combine(Result<int, string>.Ok(1), Result<string, string>.Ok("2"), Result<int, string>.Ok(3))
+            .Map((a, b, c) => $"{a}-{b}-{c}");
+        Assert.Equal("1-2-3", r3.Value);
+
+        var r4 = Result.Combine(Result<int, string>.Ok(1), Result<int, string>.Ok(2), Result<int, string>.Ok(3), Result<int, string>.Ok(4))
+            .Map((a, b, c, d) => a + b + c + d);
+        Assert.Equal(10, r4.Value);
+
+        var r5 = Result.Combine(Result<int, string>.Ok(1), Result<int, string>.Ok(2), Result<int, string>.Ok(3), Result<int, string>.Ok(4), Result<int, string>.Ok(5))
+            .Map((a, b, c, d, e) => a + b + c + d + e);
+        Assert.Equal(15, r5.Value);
+
+        var r6 = Result.Combine(
+            Result<int, string>.Ok(1),
+            Result<string, string>.Ok("2"),
+            Result<double, string>.Ok(3.0),
+            Result<bool, string>.Ok(true),
+            Result<char, string>.Ok('5'),
+            Result<long, string>.Ok(6L)
+        ).Map((a, b, c, d, e, f) => $"{a}-{b}-{c}-{d}-{e}-{f}");
+        Assert.True(r6.IsSuccess);
+        Assert.Equal("1-2-3-True-5-6", r6.Value);
+
+        var r7 = Result.Combine(
+            Result<int, string>.Ok(1),
+            Result<int, string>.Ok(2),
+            Result<int, string>.Ok(3),
+            Result<int, string>.Ok(4),
+            Result<int, string>.Ok(5),
+            Result<int, string>.Ok(6),
+            Result<int, string>.Ok(7)
+        ).Map((a, b, c, d, e, f, g) => a + b + c + d + e + f + g);
+        Assert.Equal(28, r7.Value);
+
+        var r8Success = Result.Combine(
+            Result<int, string>.Ok(1),
+            Result<int, string>.Ok(2),
+            Result<int, string>.Ok(3),
+            Result<int, string>.Ok(4),
+            Result<int, string>.Ok(5),
+            Result<int, string>.Ok(6),
+            Result<int, string>.Ok(7),
+            Result<string, string>.Ok("8")
+        ).Map((a, b, c, d, e, f, g, h) => $"{a + b + c + d + e + f + g}:{h}");
+        Assert.Equal("28:8", r8Success.Value);
+
+        var r8Fail = Result.Combine(
+            Result<int, string>.Ok(1),
+            Result<int, string>.Fail("e2"),
+            Result<int, string>.Ok(3),
+            Result<int, string>.Ok(4),
+            Result<int, string>.Ok(5),
+            Result<int, string>.Fail("e6"),
+            Result<int, string>.Ok(7),
+            Result<string, string>.Fail("e8")
+        ).Map((a, b, c, d, e, f, g, h) => h);
+        Assert.False(r8Fail.IsSuccess);
+        Assert.Equal(new[] { "e2", "e6", "e8" }, r8Fail.Errors);
+    }
 }

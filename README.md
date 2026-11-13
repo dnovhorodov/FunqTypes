@@ -63,18 +63,16 @@ public static Result<User, FunqError> CreateUser(string username, string email, 
 ```
 
 ### 📌 Applicative Validation (Accumulate Errors)
+Combine up to 8 results of **different types** (or any number of the same type) and map directly:
 ```csharp
-public static Result<User, FunqError> CreateUserAggregated(string username, string email, string password)
+public static Result<User, FunqError> CreateUserAggregated(string username, string email, int age)
 {
-    var usernameResult = ValidateUsername(username);
-    var emailResult = ValidateEmail(email);
-    var passwordResult = ValidatePassword(password);
+    var usernameResult = ValidateUsername(username); // Result<string, FunqError>
+    var emailResult = ValidateEmail(email);          // Result<Email, FunqError>
+    var ageResult = ValidateAge(age);                // Result<int, FunqError>
 
-    var validationResult = Result<string, FunqError>.Combine(usernameResult, emailResult, passwordResult);
-
-    return validationResult.IsSuccess
-        ? Result<User, FunqError>.Gotcha(new User(username, email, password))
-        : Result<User, FunqError>.Oops(validationResult.Errors.ToArray());
+    return Result.Combine(usernameResult, emailResult, ageResult)
+        .Map((u, e, a) => new User(u, e, a));
 }
 ```
 
@@ -209,7 +207,7 @@ var result = GetUserById(1)
 | `.Bind(func)`                                                            | Chains operations, stopping on first failure              |
 | `.Map(func)`                                                             | Transforms a success value                                |
 | `.Ensure(predicate, error)`                                              | Validates a success value, failing if predicate is false  |
-| `.Combine(results...)`                                                   | Combines multiple results, accumulating errors            |
+| `Result.Combine(results...)`                                             | Combines up to 8 different-typed (or any same-typed) results, accumulating errors |
 | `.Match(onSuccess, onFailure)`                                           | Pattern matches on success or failure                     |
 | `.BindAsync(func), .MapAsync(func), .EnsureAsync(predicate, error)`      | Asynchronous versions of Bind, Map, and Ensure            |
 | `.GetValueOrDefault(), .GetValueOrDefault(T), .GetValueOrDefault(func)` | Returns success value or default                          |

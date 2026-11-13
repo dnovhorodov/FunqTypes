@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 /// <typeparam name="E">The type of the error</typeparam>
 public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Errors)
 {
-    // ponytail: shared empty list avoids 32B alloc per Ok() while keeping List<E> signature; switch to IReadOnlyList<E> if callers mutate Errors
+    // shared empty list avoids 32B alloc per Ok() while keeping List<E> signature; switch to IReadOnlyList<E> if callers mutate Errors
     private static readonly List<E> EmptyErrors = [];
 
     /// <summary>
