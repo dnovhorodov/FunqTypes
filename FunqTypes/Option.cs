@@ -128,10 +128,7 @@ public readonly record struct Option<T>
     /// Converts the Option to an enumerable sequence.
     /// </summary>
     /// <returns>An enumerable containing the value if Some, otherwise an empty sequence.</returns>
-    public IEnumerable<T> ToEnumerable()
-    {
-        if (IsSome) yield return _value!;
-    }
+    public IEnumerable<T> ToEnumerable() => IsSome ? [_value!] : [];
     
     /// <summary>
     /// Filters the Option based on a predicate. If the predicate fails, returns None.

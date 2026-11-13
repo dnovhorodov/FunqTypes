@@ -18,7 +18,7 @@ public static class ResultAsyncExtensions
         var result = await resultTask.ConfigureAwait(false);
         return result.IsSuccess
             ? Result<U, E>.Ok(await mapper(result.Value).ConfigureAwait(false))
-            : Result<U, E>.Fail(result.Errors.ToArray());
+            : new(default!, false, result.Errors);
     }
     
     /// <summary>
@@ -56,7 +56,7 @@ public static class ResultAsyncExtensions
         var result = await resultTask.ConfigureAwait(false);
         return result.IsSuccess
             ? await binder(result.Value).ConfigureAwait(false)
-            : Result<U, E>.Fail(result.Errors.ToArray());
+            : new(default!, false, result.Errors);
     }
     
     /// <summary>
