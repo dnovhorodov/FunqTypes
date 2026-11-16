@@ -137,4 +137,16 @@ public class ResultExtensionsTTests
         Assert.False(r8Fail.IsSuccess);
         Assert.Equal(new[] { "e2", "e6", "e8" }, r8Fail.Errors);
     }
+
+    [Fact]
+    public async Task Combine_Bind_And_BindAsync_Deconstruct_Tuple()
+    {
+        var ok = Combine(Result<int, string>.Ok(1), Result<int, string>.Ok(2));
+        Assert.Equal(3, ok.Bind((a, b) => Result<int, string>.Ok(a + b)).Value);
+        Assert.Equal(3, (await ok.BindAsync((a, b) => Task.FromResult(Result<int, string>.Ok(a + b)))).Value);
+
+        var fail = Combine(Result<int, string>.Fail("e1"), Result<int, string>.Ok(2), Result<int, string>.Fail("e3"));
+        var bound = fail.Bind((a, b, c) => Result<int, string>.Ok(a + b + c));
+        Assert.Equal(new[] { "e1", "e3" }, bound.Errors);
+    }
 }
