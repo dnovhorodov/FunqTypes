@@ -162,6 +162,48 @@ public static class ResultExtensions
 
     public static Result<U, E> Map<T1, T2, T3, T4, T5, T6, T7, T8, U, E>(this Result<(T1, T2, T3, T4, T5, T6, T7, T8), E> r, Func<T1, T2, T3, T4, T5, T6, T7, T8, U> f) =>
         r.Map(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7, t.Item8));
+
+    public static Result<U, E> Bind<T1, T2, U, E>(this Result<(T1, T2), E> r, Func<T1, T2, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, U, E>(this Result<(T1, T2), E> r, Func<T1, T2, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2));
+
+    public static Result<U, E> Bind<T1, T2, T3, U, E>(this Result<(T1, T2, T3), E> r, Func<T1, T2, T3, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, U, E>(this Result<(T1, T2, T3), E> r, Func<T1, T2, T3, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3));
+
+    public static Result<U, E> Bind<T1, T2, T3, T4, U, E>(this Result<(T1, T2, T3, T4), E> r, Func<T1, T2, T3, T4, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3, t.Item4));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, T4, U, E>(this Result<(T1, T2, T3, T4), E> r, Func<T1, T2, T3, T4, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3, t.Item4));
+
+    public static Result<U, E> Bind<T1, T2, T3, T4, T5, U, E>(this Result<(T1, T2, T3, T4, T5), E> r, Func<T1, T2, T3, T4, T5, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, T4, T5, U, E>(this Result<(T1, T2, T3, T4, T5), E> r, Func<T1, T2, T3, T4, T5, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5));
+
+    public static Result<U, E> Bind<T1, T2, T3, T4, T5, T6, U, E>(this Result<(T1, T2, T3, T4, T5, T6), E> r, Func<T1, T2, T3, T4, T5, T6, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, T4, T5, T6, U, E>(this Result<(T1, T2, T3, T4, T5, T6), E> r, Func<T1, T2, T3, T4, T5, T6, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6));
+
+    public static Result<U, E> Bind<T1, T2, T3, T4, T5, T6, T7, U, E>(this Result<(T1, T2, T3, T4, T5, T6, T7), E> r, Func<T1, T2, T3, T4, T5, T6, T7, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, T4, T5, T6, T7, U, E>(this Result<(T1, T2, T3, T4, T5, T6, T7), E> r, Func<T1, T2, T3, T4, T5, T6, T7, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7));
+
+    public static Result<U, E> Bind<T1, T2, T3, T4, T5, T6, T7, T8, U, E>(this Result<(T1, T2, T3, T4, T5, T6, T7, T8), E> r, Func<T1, T2, T3, T4, T5, T6, T7, T8, Result<U, E>> f) =>
+        r.Bind(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7, t.Item8));
+
+    public static Task<Result<U, E>> BindAsync<T1, T2, T3, T4, T5, T6, T7, T8, U, E>(this Result<(T1, T2, T3, T4, T5, T6, T7, T8), E> r, Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<Result<U, E>>> f) =>
+        r.BindAsync(t => f(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7, t.Item8));
 }
 
 // capped at 8-tuple to match BCL ValueTuple direct arity; nest tuples if >8 needed
