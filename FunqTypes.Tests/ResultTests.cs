@@ -539,6 +539,27 @@ public class ResultTests
         Assert.Same(fail1.Errors, fail2.Errors);
     }
 
+#if NET11_0_OR_GREATER
+    [Fact]
+    public void Union_PatternMatching_And_ImplicitConversion()
+    {
+        Result<int, string> ok = 42;
+        Result<int, string> fail = new List<string> { "boom" };
+
+        static string Describe(Result<int, string> res) => res switch
+        {
+            int v => $"ok:{v}",
+            List<string> and ["boom"] => "err:boom",
+            List<string> errs => $"err:{errs.Count}"
+        };
+
+        Assert.Equal("ok:42", Describe(ok));
+        Assert.Equal("err:boom", Describe(fail));
+        Assert.True(ok is int x && x == 42);
+        Assert.True(fail is List<string> { Count: 1 });
+    }
+#endif
+
     #endregion
 }
 
