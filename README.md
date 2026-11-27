@@ -11,6 +11,7 @@
 **FunqTypes** is a set of **functional types and helpers for .NET** that brings **null-safety, error handling and composition** to C# applications. It provides:
 - ✅ **`Result<T, E>` type** - Monadic error handling with `Ok/Fail` or `Gotcha/Oops` alternative aliases
 - ✅ **`Option<T>` type** - Null-safe optional values with `Some/None` or `Yeah/Nah` alternative aliases
+- ✅ **C# 15 / .NET 11 Native Union Support** - Exhaustive `switch` expressions & `is` pattern matching with zero boxing
 - ✅ **LINQ & FP Support** - Fluent mappings, binding, filtering
 - ✅ **Zero Overhead** - Efficient `readonly record struct` implementation
 
@@ -96,6 +97,25 @@ var message = result.Match(
     errors => $"Failed: {string.Join(", ", errors)}"
 );
 Console.WriteLine(message);
+```
+
+#### ✨ C# 15 / .NET 11 Native Union Pattern Matching
+On `.NET 11+`, `Result<T, E>` is a non-boxing C# 15 Custom Union (`T` or `List<E>`), enabling compiler-verified exhaustive `switch` expressions and `is` patterns without a `_` discard arm:
+```csharp
+Result<User, string> result = CreateUser("JohnDoe", "john@doe.com", "Secret123");
+
+string message = result switch
+{
+    User { IsAdmin: true } u          => $"Admin created: {u.Name}",
+    User u                            => $"User created: {u.Name}",
+    List<string> and ["Duplicate", ..] => "User already exists",
+    List<string> errors               => $"Failed: {string.Join(", ", errors)}"
+};
+
+if (result is User createdUser)
+{
+    Console.WriteLine(createdUser.Name);
+}
 ```
 
 ### 🔄 Filtering with Where
@@ -384,6 +404,25 @@ var text = Option<int>.Yeah(5).Match(
     () => "Nothing");
 
 Console.WriteLine(text); // Output: "Got 5"
+```
+
+#### ✨ C# 15 / .NET 11 Native Union Pattern Matching
+On `.NET 11+`, `Option<T>` is a non-boxing C# 15 Custom Union (`T` or `NoneType`):
+```csharp
+Option<int> opt = Option<int>.Yeah(42);
+
+// Exhaustive switch without a discard (_) arm:
+string text = opt switch
+{
+    int v and > 10 => $"Large: {v}",
+    int v          => $"Small: {v}",
+    NoneType       => "Nothing"
+};
+
+if (opt is int value)
+{
+    Console.WriteLine($"Unwrapped: {value}");
+}
 ```
 
 ### 🔀 Fallbacks with Or and OrElse
