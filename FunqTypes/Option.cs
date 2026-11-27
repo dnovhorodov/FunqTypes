@@ -4,7 +4,13 @@
 /// Represents an optional value which can be Some(T) or None.
 /// </summary>
 /// <typeparam name="T">The type of the value.</typeparam>
+#if NET11_0_OR_GREATER
+[System.Runtime.CompilerServices.Union]
+#endif
 public readonly record struct Option<T>
+#if NET11_0_OR_GREATER
+    : Option<T>.IUnionMembers
+#endif
 {
     private readonly T? _value;
 
@@ -164,6 +170,33 @@ public readonly record struct Option<T>
     /// </summary>
     /// <param name="_">A None value.</param>
     public static implicit operator Option<T>(NoneType _) => None();
+
+#if NET11_0_OR_GREATER
+    public interface IUnionMembers
+    {
+        static Option<T> Create(T value) => value;
+        static Option<T> Create(NoneType _) => None();
+        object? Value { get; }
+        bool HasValue { get; }
+        bool TryGetValue(out T value);
+        bool TryGetValue(out NoneType value);
+    }
+
+    object? IUnionMembers.Value => IsSome ? _value : default(NoneType);
+    bool IUnionMembers.HasValue => true;
+
+    public bool TryGetValue(out T value)
+    {
+        value = _value!;
+        return IsSome;
+    }
+
+    public bool TryGetValue(out NoneType value)
+    {
+        value = default;
+        return !IsSome;
+    }
+#endif
 }
 
 /// <summary>

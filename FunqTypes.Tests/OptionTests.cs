@@ -347,5 +347,25 @@ public class OptionTests
         Assert.Equal(2, none.OrElse(() => 2).GetValueOrDefault());
     }
 
+#if NET11_0_OR_GREATER
+    [Fact]
+    public void Union_PatternMatching_ExhaustiveSwitch_And_Is()
+    {
+        Option<int> some = 42;
+        Option<int> none = Option.None;
+
+        static string Describe(Option<int> opt) => opt switch
+        {
+            int v => $"val:{v}",
+            NoneType => "none"
+        };
+
+        Assert.Equal("val:42", Describe(some));
+        Assert.Equal("none", Describe(none));
+        Assert.True(some is int x && x == 42);
+        Assert.True(none is NoneType);
+    }
+#endif
+
     #endregion
 }

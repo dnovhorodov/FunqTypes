@@ -9,7 +9,13 @@ using System.Threading.Tasks;
 /// </summary>
 /// <typeparam name="T">The type of the success value.</typeparam>
 /// <typeparam name="E">The type of the error</typeparam>
+#if NET11_0_OR_GREATER
+[System.Runtime.CompilerServices.Union]
+#endif
 public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Errors)
+#if NET11_0_OR_GREATER
+    : Result<T, E>.IUnionMembers
+#endif
 {
     // shared empty list avoids 32B alloc per Ok() while keeping List<E> signature; switch to IReadOnlyList<E> if callers mutate Errors
     private static readonly List<E> EmptyErrors = [];
@@ -222,4 +228,31 @@ public readonly record struct Result<T, E>(T Value, bool IsSuccess, List<E> Erro
     /// </summary>
     /// <param name="value">The value to convert.</param>
     public static implicit operator Result<T, E>(T value) => Ok(value);
+
+#if NET11_0_OR_GREATER
+    public interface IUnionMembers
+    {
+        static Result<T, E> Create(T value) => Ok(value);
+        static Result<T, E> Create(List<E> errors) => new(default!, false, errors ?? EmptyErrors);
+        object? Value { get; }
+        bool HasValue { get; }
+        bool TryGetValue(out T value);
+        bool TryGetValue(out List<E> errors);
+    }
+
+    object? IUnionMembers.Value => IsSuccess ? Value : Errors ?? EmptyErrors;
+    bool IUnionMembers.HasValue => IsSuccess ? Value is not null : true;
+
+    public bool TryGetValue(out T value)
+    {
+        value = Value;
+        return IsSuccess && Value is not null;
+    }
+
+    public bool TryGetValue(out List<E> errors)
+    {
+        errors = Errors ?? EmptyErrors;
+        return !IsSuccess;
+    }
+#endif
 }
